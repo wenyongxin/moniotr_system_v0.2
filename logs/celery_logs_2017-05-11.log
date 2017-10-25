@@ -1,0 +1,19 @@
+[2017-05-11 13:30:26,653: INFO/MainProcess] Connected to redis://172.16.5.230:6379/0
+[2017-05-11 13:30:26,720: INFO/MainProcess] mingle: searching for neighbors
+[2017-05-11 13:30:27,803: INFO/MainProcess] mingle: all alone
+[2017-05-11 13:30:27,887: WARNING/MainProcess] celery@007-pc ready.
+[2017-05-11 13:32:00,809: INFO/MainProcess] Connected to redis://172.16.5.230:6379/0
+[2017-05-11 13:32:00,881: INFO/MainProcess] mingle: searching for neighbors
+[2017-05-11 13:32:01,954: INFO/MainProcess] mingle: all alone
+[2017-05-11 13:32:02,028: WARNING/MainProcess] celery@007-pc ready.
+[2017-05-11 13:33:12,970: INFO/MainProcess] Connected to redis://172.16.5.230:6379/0
+[2017-05-11 13:33:13,042: INFO/MainProcess] mingle: searching for neighbors
+[2017-05-11 13:33:14,203: INFO/MainProcess] mingle: all alone
+[2017-05-11 13:33:14,276: WARNING/MainProcess] celery@007-pc ready.
+[2017-05-11 13:33:24,387: INFO/MainProcess] Received task: celerys.get_zabbix_date[961fd6e7-acba-4761-924b-155bb3219a9c]
+[2017-05-11 13:33:24,394: WARNING/Worker-1] Thu May 11 13:33:24 2017
+[2017-05-11 13:33:24,450: INFO/MainProcess] Task celerys.get_zabbix_date[961fd6e7-acba-4761-924b-155bb3219a9c] succeeded in 0.0569999217987s: None
+[2017-05-11 16:32:35,759: INFO/MainProcess] Connected to redis://localhost:6379/0
+[2017-05-11 16:32:36,859: INFO/MainProcess] mingle: searching for neighbors
+[2017-05-11 16:32:40,042: INFO/MainProcess] mingle: all alone
+[2017-05-11 16:32:45,269: WARNING/MainProcess] celery@007-pc ready.

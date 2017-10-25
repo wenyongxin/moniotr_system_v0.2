@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% from "macros/macro_manager_user.html" import user_input%}
+
+{% block title %}{{ name }}{% endblock %}
+
+{#样式#}
+{% block style %}
+<style>
+    .login_content{width: 570px; height: 300px; border: 2px solid #fff; background: #428BCA; border-radius: 10px;
+        box-shadow: 2px 3px 8px -1px; position: fixed; top: 50%; left: 50%; margin-top: -150px; margin-left: -235px;}
+
+    .login_content .l_zabbix_log{float: left; margin-top: 12%; margin-left: 4%;}
+    .login_content .l_form{width: 305px;height: 250px;background: #fff;float: right;border-radius: 10px;margin-right: 24px;margin-top: 25px;}
+    .login_content .l_form .l_title{font-size: 30px;font-family: "微软雅黑";text-align: center;margin: 20px;}
+    .login_content .l_form .user_inputs{width: 85%;margin: auto;margin-top: 15px;}
+    .login_content .l_form .l_message{text-align: center;font-size: 12px;margin-top: 10px;color: red;display: none;}
+
+</style>
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+    <div class="login_content">
+        <image class="l_zabbix_log" src="{{ url_for('static', filename='efun/images/efun_zabbix.png')}}"></image>
+        <div class="l_form">
+            <div class="l_title">绑定登录</div>
+            {{ user_input("zabbix用户","","z_users") }}
+            {{ user_input("zabbix密码","","z_passwd", "pass") }}
+            <div class="input-group user_inputs">
+                <button type="button" class="btn btn-primary btn-block btn-zabbix">登录</button>
+            </div>
+            <div class="l_message"></div>
+        </div>
+    </div>
+{% endblock %}
+
+{# jq #}
+{% block javascript %}
+<script>
+
+    $('.btn-zabbix').click(function(event){
+        event.preventDefault()
+        var z_user = $('.z_users').val()
+        var z_passwd = $('.z_passwd').val()
+
+        //判断用户名与密码框输入是否为空
+        if(!z_user){
+            alert('用户名不能为空！')
+            return;
+        }else if(!z_passwd){
+            alert('密码不能为空！')
+            return;
+        }
+
+        datas = {'user':z_user, 'password':z_passwd}
+
+
+        $.post(
+                '/monitor/zabbix_login',
+                datas,
+                function(data){
+                    if(data['code'] == 200){
+                        location.href = data['href'];
+                    }else if(data['code'] == 400){
+                        $('.l_message').text(data['message']);
+                        $('.l_message').show();
+                    }
+                }
+        )
+    })
+
+
+    //{# 回车键盘出发鼠标点击事件 #}
+    $(function() {
+        $('html').bind('keydown', function (e) {
+            if (e.keyCode == 13) {
+                $('.btn').click();
+            }
+        })
+    });
+
+
+</script>
+
+
+
+{% endblock %}

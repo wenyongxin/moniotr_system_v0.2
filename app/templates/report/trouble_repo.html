@@ -1,0 +1,1180 @@
+{% extends "base.html" %}
+
+{% block title %}故障报告{% endblock %}
+
+{% block liMarquee%}
+
+{% endblock %}
+
+{#样式#}
+{% block style %}
+
+
+<link rel="stylesheet" href="/static/report/font-awesome/css/font-awesome.min.css"/>
+<link rel="stylesheet" href="/static/report/css/select2.min.css">
+<link rel="stylesheet" href="/static/report/css/style.css" />
+<link rel="stylesheet" href="/static/report/jquery-ui/jquery-ui.css">
+<script src="/static/report/jquery-ui/jquery-ui.js"></script>
+<style>
+
+.right{width: 1690px; height: 100%; background: #ddd; position:absolute;top: 0px; right: 0px;overflow-y:scroll}
+.right .r_content{width:98.5%; height: 84%; float:right; position: absolute; margin-top:10px;}
+
+table {
+	table-layout:fixed;
+}
+
+td {
+	overflow:hidden;
+	text-overflow:ellipsis;
+}
+
+
+.popover.left {
+    margin-left: -20%;
+    height:auto;
+}
+
+
+
+</style>
+
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+
+
+	<div class="row">
+
+		<div class="col-xs-12" style="padding-left: 60px;padding-right: 15px;">
+			<div class="table-header" style="background-color:#357EBD;height: 45px;padding-right: 20px;overflow: hidden;">
+				<div style="width: 25%;float: left;font-size: 20px;	">故障报告</div>
+				<div style="width: 25%;float: left;">
+					<span>核心服务故障时间：<span id='trouble-times'>{{ trouble_times }}</span> 分钟</span>&nbsp;&nbsp;&nbsp;
+					<span>稳定性：<span id='stab-per'>{{ stab_per }} </span> %</span>
+				</div>
+				<div style="width: 25%;float: left;">
+					<span>非核心服务故障时间：<span id='trouble-times-1'>{{ trouble_times_1 }}</span> 分钟</span>&nbsp;&nbsp;&nbsp;
+					<span>稳定性：<span id='stab-per-1'>{{ stab_per_1 }}</span>%</span>
+				</div>
+
+				<div class="pull-right" style="padding-top:10px;">
+					<select  id="repo-type" style="color:black;width:75px;height: 30px;padding: 0px 10px;" class="form-control">
+						<option value="daily">日报</option>
+						<option value="weekend">周报</option>
+					</select>
+				</div>
+
+			</div>
+
+			<div class="row panel-heading" style="background-color: #E1EDF7;height: 50px;text-align: center;margin-top: -1px;margin-left: 0px;margin-right: 0px;overflow: hidden;">
+				<div class="col-sm-2">
+
+					<div style="float: left;">
+
+						<div class="input-group">
+							<span class="input-group-addon" ><i class="fa fa-calendar fa-lg"></i></span>
+							<input type="text" class="form-control" id="datepicker" value="{{ today }}">
+
+						</div>
+					</div>
+
+				</div>
+				<div class="col-sm-10" style="overflow: hidden;">
+					<div class="pull-right">
+						{% if current_user.permission_id ==1 %}
+							{%if trouble_add_count == 0 %}
+							待处理故障报告：<a class="btn btn-lg badge" data-toggle="modal" style="background:gray;" >{{ trouble_add_count }}</a>&nbsp;&nbsp;
+							{% else %}
+							待处理故障报告：<span class="btn btn-lg badge" data-toggle="modal" data-target="#myModal-1" style="background: green;" id="check">{{ trouble_add_count }}</span>&nbsp;&nbsp;
+							{% endif %}
+						{% endif %}
+						<button class="btn btn-primary" data-toggle="modal" data-target="#myModal">添加故障</button>
+						<span class="btn btn-success" id='export-trouble'>导出</span>
+
+
+					</div>
+
+				</div>
+
+			</div>
+
+
+			<div class="table-responsive" style="margin-top:-3px;overflow-x:scroll; zoom:0.8;min-width: 1400px;">
+				<div style="width:3600px;">
+					<table class="table table-bordered " style="background-color:white">
+						<thead>
+							<tr role="row" style="color: white;text-align: center;">
+								<th width="180px" height='60px' bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">日期</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">运营中心</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">业务模块</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">事件</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">影响范围</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">是否内部故障</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">影响时长(分钟)</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">是否影响用户体验</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">影响用户</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">直接经济损失</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">数据来源</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">是否核心服务</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">故障类型</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">处理负责人</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">归属</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">状态</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">故障原因</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">处理过程</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">教训总结</th>
+								<th width="180px" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">改进</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+
+				<div style="width:3617px;max-height:85%;overflow-y:scroll;margin-top:-21px">
+					<table class="table  table-bordered" style="background-color:white">
+						<tbody id='trouble-tbody' >
+
+							{% for trouble in trouble_infos %}
+							<tr id="{{ trouble.id }}" >
+								<td  width="180px" height='60px' name='trouble_date' style="text-align:center;vertical-align:middle;">{{ trouble.trouble_date }}</td>
+								<td  width="180px" name='operating_center' style="text-align:center;vertical-align:middle;">{{ trouble.operating_center }}</td>
+								<td  width="180px" name='business_module' style="text-align:center;vertical-align:middle;">{{ trouble.business_module }}</td>
+								<td  width="180px" name='trouble_affair' style="text-align:center;vertical-align:middle;">{{ trouble.trouble_affair }}</td>
+								<td  width="180px" name='affect_scope' style="text-align:center;vertical-align:middle;">{{ trouble.affect_scope }}</td>
+								<td  width="180px" name='isnot_inner' style="text-align:center;vertical-align:middle;">{{ trouble.isnot_inner }}</td>
+								<td  width="180px" name='affect_time' style="text-align:center;vertical-align:middle;">{{ trouble.affect_time }}</td>
+								<td  width="180px" name='isnot_experience' style="text-align:center;vertical-align:middle;">{{ trouble.isnot_experience }}</td>
+								<td  width="180px" name='affect_user' style="text-align:center;vertical-align:middle;">{{ trouble.affect_user }}</td>
+								<td  width="180px" name='affect_money' style="text-align:center;vertical-align:middle;">{{ trouble.affect_money }}</td>
+								<td  width="180px" name='data_source' style="text-align:center;vertical-align:middle;">{{ trouble.data_source }}</td>
+								<td  width="180px" name='isnot_core' class="isnot_core" times="{{ trouble.affect_time }}" style="text-align:center;vertical-align:middle;">{{ trouble.isnot_core }}</td>
+								<td  width="180px" name='trouble_type' style="text-align:center;vertical-align:middle;">{{ trouble.trouble_type }}</td>
+								<td  width="180px" name='heading_user' style="text-align:center;vertical-align:middle;">{{ trouble.heading_user }}</td>
+								<td  width="180px" name='trouble_attr' style="text-align:center;vertical-align:middle;">{{ trouble.trouble_attr }}</td>
+								<td  width="180px" name='trouble_status' style="text-align:center;vertical-align:middle;">{{ trouble.trouble_status }}</td>
+
+								<td  width="180px"  name='trouble_cause' class="btn" style="text-align:center;vertical-align:middle;line-height:3;" title="故障原因" tabindex="1" role="button"  data-trigger="focus" data-container="body" data-toggle="popover" data-placement="left" data-content="<pre height='80px' style='background-color:transparent;border:0px solid;white-space: pre-wrap;word-wrap: break-word;'>{{ trouble.trouble_cause }}</pre>">{{ trouble.trouble_cause }}</td>
+
+								<td  width="180px"  name='whith_process' class="btn" style="text-align:center;vertical-align:middle;line-height:3;" title="处理过程" tabindex="1" role="button"  data-trigger="focus" data-container="body" data-toggle="popover" data-placement="left" data-content="<pre height='80px' style='background-color:transparent;border:0px solid;white-space: pre-wrap;word-wrap: break-word;'>{{ trouble.whith_process }}</pre>">{{ trouble.whith_process }}</td>
+								{% if trouble.lesson_course %}
+									<td  width="180px"  name='lesson_course' class="btn" style="text-align:center;vertical-align:middle;line-height:3;" title="教训总结" tabindex="1" role="button"  data-trigger="focus" data-container="body" data-toggle="popover"  data-placement="left" data-content="<pre height='80px' style='background-color:transparent;border:0px solid;white-space: pre-wrap;word-wrap: break-word;'>{{ trouble.lesson_course }}</pre>">{{ trouble.lesson_course }}</td>
+								{% else %}
+									<td  width="180px" name='lesson_course' class="btn" style="border:1px;">{{ trouble.lesson_course }}</td>
+								{% endif%}
+
+								{% if trouble.improve %}
+									<td  width="180px"  name='improve'  class="btn" style="text-align:center;vertical-align:middle;line-height:3;" title="教训总结" tabindex="0" role="button"  data-trigger="focus"  data-container="body" data-toggle="popover"  data-placement="left" data-content="<pre height='50px' style='background-color:transparent;border:0px solid;white-space: pre-wrap;word-wrap: break-word;'>{{ trouble.improve }}</pre>">{{ trouble.improve }}</td>
+								{% else %}
+									<td  width="180px"  name='improve' class="btn" style="border:1px;">{{ trouble.improve }}</td>
+								{% endif%}
+
+
+
+							</tr>
+
+
+							{% endfor %}
+							{% if trouble_infos %}
+							<tr></tr>
+							{% else %}
+							<tr><td style="color: green;font-size: 30px;" colspan="20"><marquee scrollAmount=10  onmouseover='this.stop();' onmouseout='this.start();' direction=right>{{ today }} 无故障报告!</marquee></td></tr>
+							{% endif %}
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+
+		</div>
+	</div>
+
+
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="width: 65%;min-width:1150px;margin-top: 8%;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title" id="myModalLabel">添加故障报告</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >时间</h5>
+								<input type="text" class="form-control" id="add-trouble-time" value="{{ today }}" style="z-index:1050">
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >运营中心</h5>
+								<select id="operating-center"  class="form-control" style="width: 100%;">
+									<option value="亚欧">亚欧</option>
+									<option value="港台">港台</option>
+									<option value="韩国">韩国</option>
+									<option value="国内">国内</option>
+									<option value="全球">全球</option>
+									<option value="全球">ALL</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >业务模块</h5>
+								<select id="business-module" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="登录">登录</option>
+									<option value="储值">储值</option>
+									<option value="注册">注册</option>
+									<option value="活动">活动</option>
+									<option value="后台">后台</option>
+									<option value="平台">平台</option>
+									<option value="工程">工程</option>
+									<option value="工程">ALL</option>
+									{% for group in group_list %}
+									<option value="{{ group }}">{{ group }}</option>
+									{% endfor %}
+
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >事件</h5>
+								<input type="text" class="form-control" id='trouble-affair'>
+
+							</div>
+						</div>
+					</div>
+
+
+
+					<div class="row">
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >影响范围</h5>
+								<input type="text" class="form-control"  id='affect-scope'>
+
+							</div>
+						</div>
+
+
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >是否内部故障</h5>
+								<select id="isnot-inner"  class="form-control" style="width: 100%;">
+									<option value="是">是</option>
+									<option value="否" selected>否</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >影响时长(M)</h5>
+								<input type="text" class="form-control"  id='affect-time'>
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >是否影响用户体验</h5>
+								<select id="isnot-experience"  class="form-control" style="width: 100%;">
+									<option value="是" selected>是</option>
+									<option value="否">否</option>
+								</select>
+
+							</div>
+						</div>
+
+					</div>
+
+
+
+					<div class="row">
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >影响用户</h5>
+								<input type="text" class="form-control" id='affect-user'>
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >直接经济损失($)</h5>
+								<input type="text" class="form-control" id='affect-money'>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >数据来源</h5>
+								<select id="data-source" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="zabbix">zabbix</option>
+									<option value="后台">后台</option>
+								</select>
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >是否核心服务</h5>
+								<select id="isnot-core"  class="form-control" style="width: 100%;">
+									<option value="是" selected>是</option>
+									<option value="否">否</option>
+								</select>
+
+							</div>
+						</div>
+
+					</div>
+
+
+					<div class="row">
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >故障类型</h5>
+								<select id="trouble-type"  class="form-control" style="width: 100%;">
+									<option value="服务器故障">服务器故障</option>
+									<option value="人为故障">人为故障</option>
+									<option value="BUG类型故障">BUG类型故障</option>
+									<option value="安全类型故障">安全类型故障</option>
+									<option value="第三方故障">第三方故障</option>
+									<option value="偶然性故障">偶然性故障</option>
+									<option value="网络故障">网络故障</option>
+
+								</select>
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >处理负责人</h5>
+								<select id="heading-user" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="陈政">陈政</option>
+									<option value="杨浩源">杨浩源</option>
+									<option value="张静波">张静波</option>
+									<option value="黄友军">黄友军</option>
+									<option value="杨广泉">杨广泉</option>
+									<option value="林晓斌">林晓彬</option>
+									<option value="郭东逸">郭东逸</option>
+									<option value="欧阳柯">欧阳柯</option>
+									<option value="黄宝">黄宝</option>
+									<option value="郑松文">郑松文</option>
+									<option value="吴嘉杰">吴嘉杰</option>
+									<option value="安京柱">安京柱</option>
+									<option value="郑镇海">郑镇海</option>
+									<option value="黄金强">黄金强</option>
+									<option value="張圳龍">張圳龍</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >归属</h5>
+								<select id="trouble-attr" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="运维">运维</option>
+									<option value="基础发开">基础开发</option>
+									<option value="业务开发">业务开发</option>
+									<option value="第三方">第三方</option>
+
+								</select>
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >状态</h5>
+								<select id="trouble-status" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="完成">完成</option>
+									<option value="跟进">跟进</option>
+									<option value="分析">分析中</option>
+								</select>
+							</div>
+						</div>
+
+					</div>
+
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >原因:</h5>
+								<textarea class="form-control" rows="3" id='trouble-cause'></textarea>
+							</div>
+						</div>
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >处理过程:</h5>
+								<textarea class="form-control" rows="3" id='whith-process'></textarea>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >教训总结:</h5>
+								<textarea class="form-control" rows="3" id='lesson-course'></textarea>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >改进:</h5>
+								<textarea class="form-control" rows="3" id='improve'></textarea>
+							</div>
+						</div>
+
+					</div>
+
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" id='sub-close'>关闭</button>
+					<button type="button" class="btn btn-primary" id='sub-add-trouble'>提交</button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+
+	<div class="modal fade" id="myModal-1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel-1" aria-hidden="true">
+		<div class="modal-dialog" style="width: 65%;min-width:1150px;margin-top: 8%;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title" id="myModalLabel-1">修改故障报告</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >时间</h5>
+								<input type="text" class="form-control" id="add_trouble_time_1" value="{{ trouble_add_info.trouble_date }}" name="{{ trouble_add_info.id }}" style="z-index:1050">
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >运营中心</h5>
+								<input type="text" class="form-control" id='operating-center-add' value="{{ trouble_add_info.operating_center }}">
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >业务模块</h5>
+								<input type="text" class="form-control" id='business-module-add' value="{{ trouble_add_info.business_module }}">
+							</div>
+						</div>
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >事件</h5>
+								<input type="text" class="form-control" id='trouble-affair-add' value="{{ trouble_add_info.trouble_affair }}">
+
+							</div>
+						</div>
+
+					</div>
+
+
+					<div class="row">
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >影响范围</h5>
+								<input type="text" class="form-control"  id='affect-scope-add' value="{{ trouble_add_info.affect_scope }}">
+
+							</div>
+						</div>
+
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >是否内部故障</h5>
+								<input type="text" class="form-control" id='isnot-inner-add' value="{{ trouble_add_info.isnot_inner }}">
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >影响时长(分钟)</h5>
+								<input type="text" class="form-control"  id='affect-time-add' value="{{ trouble_add_info.affect_time }}">
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >是否影响用户体验</h5>
+								<input type="text" class="form-control" id='isnot-experience-add' value="{{ trouble_add_info.isnot_experience }}">
+
+							</div>
+						</div>
+
+					</div>
+
+
+					<div class="row">
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >影响用户</h5>
+								<input type="text" class="form-control"  id='affect-user-add' value="{{ trouble_add_info.affect_user }}">
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >直接经济损失(美元)</h5>
+								<input type="text" class="form-control" id='affect-money-add' value="{{ trouble_add_info.affect_money }}">
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >数据来源</h5>
+								<input type="text" class="form-control"  id='data-source-add' value="{{ trouble_add_info.data_source }}">
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >是否核心服务</h5>
+								<input type="text" class="form-control" id='isnot-core-add' value="{{ trouble_add_info.isnot_core }}">
+
+							</div>
+						</div>
+
+					</div>
+
+
+					<div class="row">
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >故障类型</h5>
+								<input type="text" class="form-control" id='trouble-type-add' value="{{ trouble_add_info.trouble_type }}">
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >处理负责人</h5>
+								<input type="text" class="form-control" id='heading-user-add' value="{{ trouble_add_info.heading_user }}">
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >归属</h5>
+								<input type="text" class="form-control" id='trouble-attr-add' value="{{ trouble_add_info.trouble_attr }}">
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >状态</h5>
+								<input type="text" class="form-control" id='trouble-status-add' value="{{ trouble_add_info.trouble_status }}">
+
+							</div>
+						</div>
+
+					</div>
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >故障原因:</h5>
+								<textarea class="form-control" rows="3" id='trouble-cause-add' >{{ trouble_add_info.trouble_cause }}</textarea>
+							</div>
+						</div>
+
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >处理过程:</h5>
+								<textarea class="form-control" rows="3" id='whith-process-add' >{{ trouble_add_info.whith_process }}</textarea>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >教训总结:</h5>
+								<textarea class="form-control" rows="3" id='lesson-course-add' >{{ trouble_add_info.lesson_course }}</textarea>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >改进:</h5>
+								<textarea class="form-control" rows="3" id='improve-add' >{{ trouble_add_info.improve }}</textarea>
+							</div>
+						</div>
+
+					</div>
+
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" id='sub-close-1'>关闭</button>
+					<button type="button" class="btn btn-default" id='sub-save'>保存</button>
+					<button type="button" class="btn btn-primary" id='sub-plublish'>发布</button>
+					<button type="button" class="btn btn-warning" id='sub-change' style="display:none">修改</button>
+					<button type="button" class="btn btn-danger" id='sub-del'>删除</button>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+
+<script src="/static/report/js/echarts.min.js"></script>
+<script  src="/static/report/js/select2.min.js"></script>
+
+<script type="text/javascript">
+
+
+
+
+
+$(function ()
+      { $("[data-toggle='popover']").popover({
+      	html : true,
+      });
+ });
+
+
+$("#check").click(function(){
+	$("#sub-close-1").css("display","none");
+	$("#sub-save").css("display","");
+	$("#sub-del").css("display","");
+	$("#sub-plublish").css("display","");
+	$("#sub-change").css("display","none");
+});
+
+
+
+//双击编辑
+$("td").dblclick(function(){
+
+	var id = $(this).parent().attr("id");
+	if(id){
+		var trouble_date = $(this).parent().children("td[name='trouble_date']").html();
+		var operating_center = $(this).parent().children("td[name='operating_center']").html();
+		var business_module = $(this).parent().children("td[name='business_module']").html();
+		var trouble_affair = $(this).parent().children("td[name='trouble_affair']").html();
+		var affect_scope = $(this).parent().children("td[name='affect_scope']").html();
+		var isnot_inner = $(this).parent().children("td[name='isnot_inner']").html();
+		var affect_time = $(this).parent().children("td[name='affect_time']").html();
+		var isnot_experience = $(this).parent().children("td[name='isnot_experience']").html();
+		var affect_user = $(this).parent().children("td[name='affect_user']").html();
+		var affect_money = $(this).parent().children("td[name='affect_money']").html();
+		var data_source = $(this).parent().children("td[name='data_source']").html();
+		var isnot_core = $(this).parent().children("td[name='isnot_core']").html();
+		var trouble_type = $(this).parent().children("td[name='trouble_type']").html();
+		var heading_user = $(this).parent().children("td[name='heading_user']").html();
+		var trouble_attr = $(this).parent().children("td[name='trouble_attr']").html();
+		var trouble_status = $(this).parent().children("td[name='trouble_status']").html();
+		var trouble_cause = $(this).parent().children("td[name='trouble_cause']").html();
+		var whith_process = $(this).parent().children("td[name='whith_process']").html();
+		var lesson_course = $(this).parent().children("td[name='lesson_course']").html();
+		var improve = $(this).parent().children("td[name='improve']").children().html();
+
+		$("#add_trouble_time_1").val(trouble_date);
+		$("#operating-center-add").val(operating_center);
+		$("#business-module-add").val(business_module);
+		$("#trouble-affair-add").val(trouble_affair);
+		$("#affect-scope-add").val(affect_scope);
+		$("#isnot-inner-add").val(isnot_inner);
+		$("#affect-time-add").val(affect_time);
+		$("#isnot-experience-add").val(isnot_experience);
+		$("#affect-user-add").val(affect_user);
+		$("#affect-money-add").val(affect_money);
+		$("#data-source-add").val(data_source);
+		$("#isnot-core-add").val(isnot_core);
+		$("#trouble-type-add").val(trouble_type);
+		$("#heading-user-add").val(heading_user);
+		$("#trouble-attr-add").val(trouble_attr);
+		$("#trouble-status-add").val(trouble_status);
+		$("#trouble-cause-add").val(trouble_cause);
+		$("#whith-process-add").val(whith_process);
+		$("#lesson-course-add").val(lesson_course);
+		$("#improve-add").val(improve);
+		$("#sub-save").css("display","none");
+		$("#sub-del").css("display","");
+		$("#sub-plublish").css("display","none");
+		$("#sub-change").css("display","");
+		$("#sub-close-1").css("display","");
+		//跳出模态框
+		$('#myModal-1').modal({ show: true, backdrop: 'static' });
+
+		//发布故障报告
+		$("#sub-change").click(function(){
+			var action='change_trouble';
+			var trouble_date = $("#add_trouble_time_1").val();
+			var operating_center = $("#operating-center-add").val();
+			var business_module = $("#business-module-add").val();
+			var trouble_affair = $("#trouble-affair-add").val();
+			var affect_scope = $("#affect-scope-add").val();
+			var isnot_inner = $("#isnot-inner-add").val();
+			var affect_time = $("#affect-time-add").val();
+			var isnot_experience = $("#isnot-experience-add").val();
+			var affect_user = $("#affect-user-add").val();
+			var affect_money = $("#affect-money-add").val();
+			var data_source = $("#data-source-add").val();
+			var isnot_core = $("#isnot-core-add").val();
+			var trouble_type = $("#trouble-type-add").val();
+			var heading_user = $("#heading-user-add").val();
+			var trouble_attr = $("#trouble-attr-add").val();
+			var trouble_status = $("#trouble-status-add").val();
+			var trouble_cause = $("#trouble-cause-add").val();
+			var whith_process = $("#whith-process-add").val();
+			var lesson_course = $("#lesson-course-add").val();
+			var improve = $("#improve-add").val();
+
+			$.post('/troubleadd/',{'action':action,'id':id,'trouble_date':trouble_date,'operating_center':operating_center,'business_module':business_module,'trouble_affair':trouble_affair,
+								'affect_scope':affect_scope,'isnot_inner':isnot_inner,'affect_time':affect_time,'isnot_experience':isnot_experience,'affect_user':affect_user,
+								'affect_money':affect_money,'data_source':data_source,'isnot_core':isnot_core,'trouble_type':trouble_type,'heading_user':heading_user,
+								'trouble_attr':trouble_attr,'trouble_status':trouble_status,'trouble_cause':trouble_cause,'whith_process':whith_process,'lesson_course':lesson_course,'improve':improve},function(data){
+						alert(data);
+						$('#myModal-1').modal('hide');
+						location.reload();
+				});
+		});
+
+		//删除故障报告
+		$("#sub-del").click(function(){
+			var action='del_trouble';
+			$.post('/troubleadd/',{'action':action,'id':id},function(data){
+					alert(data);
+					$('#myModal-1').modal('hide');
+					location.reload();
+			   });
+		});
+	}
+});
+
+
+//索引框
+$("#business-module").select2({
+    tags: true,
+    maximumSelectionLength: 1,  //最多能够选择的个数
+  });
+
+
+//索引框
+$("#heading-user").select2({
+    tags: true,
+    maximumSelectionLength: 1,  //最多能够选择的个数
+  });
+
+//索引框
+$("#data-source").select2({
+    tags: true,
+    maximumSelectionLength: 1,  //最多能够选择的个数
+  });
+
+//索引框
+$("#trouble-attr").select2({
+    tags: true,
+    maximumSelectionLength: 1,  //最多能够选择的个数
+  });
+
+//索引框
+$("#trouble-status").select2({
+    tags: true,
+    maximumSelectionLength: 1,  //最多能够选择的个数
+  });
+
+
+//创建日历插件
+$("#add-trouble-time").datepicker({
+      changeMonth: true,
+      changeYear: true,
+      maxDate: "+0D",
+      monthNamesShort: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+   });
+
+
+
+//格式化时间
+$("#add-trouble-time").change(function(){
+    $( "#add-trouble-time" ).datepicker( "option", "dateFormat", "yy-mm-dd");
+
+});
+
+
+
+//创建日历插件
+$("#add_trouble_time_1").datepicker({
+      changeMonth: true,
+      changeYear: true,
+      maxDate: "+0D",
+      monthNamesShort: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+   });
+
+
+
+//格式化时间
+$("#add_trouble_time_1").change(function(){
+    $( "#add_trouble_time_1" ).datepicker( "option", "dateFormat", "yy-mm-dd");
+
+});
+
+
+//创建日历插件
+$("#datepicker").datepicker({
+      changeMonth: true,
+      changeYear: true,
+      maxDate: "+0D",
+      monthNamesShort: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12']
+   });
+
+
+
+//选择(日期)故障报告
+$("#datepicker").change(function(){
+    $( "#datepicker" ).datepicker( "option", "dateFormat", "yy-mm-dd");
+
+    var repo_date = $("#datepicker").val();
+    var repo_type = $("#repo-type").val();
+
+    $.post('/troubleinfo',{'repo_date':repo_date,'repo_type':repo_type},function(date){
+
+	  		$("#trouble-tbody").text("");
+	  		$("#trouble-tbody").append(date);
+
+			var sum_core = 0;
+	  		var sum_ncore = 0;
+
+			var isemp = $("td.isnot_core").attr('times');
+
+			$("td.isnot_core").each(function(){
+				var isnot = $(this).text();
+
+				if(isnot=='是'){
+					times = $(this).attr('times');
+					times = Number(times);
+					if(times){
+						sum_core = sum_core + times;
+						}
+					else{
+						sum_core = sum_core + 0;
+						}
+					}
+				else if(isnot=='否'){
+					times = $(this).attr('times');
+					times = Number(times)
+					if(times){
+						sum_ncore = sum_ncore + times;
+					}
+					else{
+						sum_ncore = sum_ncore + 0;
+					}
+
+					}
+
+				});
+
+			if(repo_type=='daily'){
+
+				p = (1-sum_core/1440)*100;
+				per = p.toFixed(2);
+
+				p_1 = (1-sum_ncore/1440)*100;
+				per_1 = p_1.toFixed(2);
+				$("#trouble-times").text("");
+				$("#stab-per").text("");
+				$("#trouble-times").append(sum_core);
+				$("#stab-per").append(per);
+				$("#trouble-times-1").text("");
+				$("#stab-per-1").text("");
+
+				$("#trouble-times-1").append(sum_ncore);
+				$("#stab-per-1").append(per_1);
+				}
+			else if(repo_type=='weekend'){
+				p = (1-sum_core/10080)*100;
+				per = p.toFixed(2);
+
+				p_1 = (1-sum_ncore/10080)*100;
+				per_1 = p_1.toFixed(2);
+
+				$("#trouble-times").text("");
+				$("#stab-per").text("");
+				$("#trouble-times").append(sum_core);
+				$("#stab-per").append(per);
+				$("#trouble-times-1").text("");
+				$("#stab-per-1").text("");
+				$("#trouble-times-1").append(sum_ncore);
+				$("#stab-per-1").append(per_1);
+
+				}
+
+			if(isemp==undefined){
+				$("#trouble-times").text("");
+				$("#stab-per").text("");
+
+				$("#trouble-times").append(0);
+				$("#stab-per").append(100);
+
+				$("#trouble-times-1").text("");
+				$("#stab-per-1").text("");
+
+				$("#trouble-times-1").append(0);
+				$("#stab-per-1").append(100);
+			}
+	});
+});
+
+
+
+
+//故障类型
+$("#repo-type").change(function(){
+
+	var repo_date = $("#datepicker").val();
+    var repo_type = $("#repo-type").val();
+
+    $.post('/troubleinfo',{'repo_date':repo_date,'repo_type':repo_type},function(date){
+
+	  		$("#trouble-tbody").text("");
+	  		$("#trouble-tbody").append(date);
+			var sum_core = 0;
+	  		var sum_ncore = 0;
+			var isemp = $("td.isnot_core").attr('times');
+			$("td.isnot_core").each(function(){
+				var isnot = $(this).text();
+
+				if(isnot=='是'){
+					times = $(this).attr('times');
+					times = Number(times);
+					if(times){
+						sum_core = sum_core + times;
+						}
+					else{
+						sum_core = sum_core + 0;
+						}
+					}
+				else if(isnot=='否'){
+					times = $(this).attr('times');
+					times = Number(times)
+					if(times){
+						sum_ncore = sum_ncore + times;
+					}
+					else{
+						sum_ncore = sum_ncore + 0;
+					}
+
+					}
+
+				});
+
+			if(repo_type=='daily'){
+
+				p = (1-sum_core/1440)*100;
+				per = p.toFixed(2);
+
+				p_1 = (1-sum_ncore/1440)*100;
+				per_1 = p_1.toFixed(2);
+
+				$("#trouble-times").text("");
+				$("#stab-per").text("");
+
+
+				$("#trouble-times").append(sum_core);
+				$("#stab-per").append(per);
+
+
+				$("#trouble-times-1").text("");
+				$("#stab-per-1").text("");
+
+
+				$("#trouble-times-1").append(sum_ncore);
+				$("#stab-per-1").append(per_1);
+
+				}
+			else if(repo_type=='weekend'){
+
+				p = (1-sum_core/10080)*100;
+				per = p.toFixed(2);
+
+				p_1 = (1-sum_ncore/10080)*100;
+				per_1 = p_1.toFixed(2);
+
+				$("#trouble-times").text("");
+				$("#stab-per").text("");
+				$("#trouble-times").append(sum_core);
+				$("#stab-per").append(per);
+
+
+				$("#trouble-times-1").text("");
+				$("#stab-per-1").text("");
+				$("#trouble-times-1").append(sum_ncore);
+				$("#stab-per-1").append(per_1);
+
+				}
+
+			if(isemp==undefined){
+
+				$("#trouble-times").text("");
+				$("#stab-per").text("");
+
+				$("#trouble-times").append(0);
+				$("#stab-per").append(String(100.0));
+
+				$("#trouble-times-1").text("");
+				$("#stab-per-1").text("");
+
+				$("#trouble-times-1").append(0);
+				$("#stab-per-1").append(String(100.0));
+				}
+	});
+});
+
+
+
+
+//添加故障报告
+$("#sub-add-trouble").click(function(){
+	var action='add_trouble';
+    var trouble_date = $("#add-trouble-time").val();
+    var operating_center = $("#operating-center option:selected").text();
+    var business_module = $("#business-module option:selected").text();
+    var trouble_affair = $("#trouble-affair").val();
+    var affect_scope = $("#affect-scope").val();
+    var isnot_inner = $("#isnot-inner option:selected").text();
+    var affect_time = $("#affect-time").val();
+    var isnot_experience = $("#isnot-experience  option:selected").text();
+    var affect_user = $("#affect-user").val();
+    var affect_money = $("#affect-money").val();
+    var data_source = $("#data-source option:selected").text();
+    var isnot_core = $("#isnot-core option:selected").text();
+    var trouble_type = $("#trouble-type option:selected").text();
+    var heading_user = $("#heading-user option:selected").text();
+    var trouble_attr = $("#trouble-attr option:selected").text();
+    var trouble_status = $("#trouble-status option:selected").text();
+    var trouble_cause = $("#trouble-cause").val();
+    var whith_process = $("#whith-process").val();
+    var lesson_course = $("#lesson-course").val();
+    var improve = $("#improve").val();
+
+    $.post('/troubleadd/',{'action':action,'trouble_date':trouble_date,'operating_center':operating_center,'business_module':business_module,'trouble_affair':trouble_affair,
+						'affect_scope':affect_scope,'isnot_inner':isnot_inner,'affect_time':affect_time,'isnot_experience':isnot_experience,'affect_user':affect_user,
+						'affect_money':affect_money,'data_source':data_source,'isnot_core':isnot_core,'trouble_type':trouble_type,'heading_user':heading_user,
+						'trouble_attr':trouble_attr,'trouble_status':trouble_status,'trouble_cause':trouble_cause,'whith_process':whith_process,'lesson_course':lesson_course,'improve':improve},function(data){
+				alert(data);
+				$('#myModal').modal('hide');
+				location.reload();
+    	});
+	});
+
+
+//修改保存故障报告
+$("#sub-save").click(function(){
+	var action='alter_trouble';
+	var id = $("#add_trouble_time_1").attr('name');
+	var trouble_date = $("#add_trouble_time_1").val();
+    var operating_center = $("#operating-center-add").val();
+    var business_module = $("#business-module-add").val();
+    var trouble_affair = $("#trouble-affair-add").val();
+    var affect_scope = $("#affect-scope-add").val();
+    var isnot_inner = $("#isnot-inner-add").val();
+    var affect_time = $("#affect-time-add").val();
+    var isnot_experience = $("#isnot-experience-add").val();
+    var affect_user = $("#affect-user-add").val();
+    var affect_money = $("#affect-money-add").val();
+    var data_source = $("#data-source-add").val();
+    var isnot_core = $("#isnot-core-add").val();
+    var trouble_type = $("#trouble-type-add").val();
+    var heading_user = $("#heading-user-add").val();
+    var trouble_attr = $("#trouble-attr-add").val();
+    var trouble_status = $("#trouble-status-add").val();
+    var trouble_cause = $("#trouble-cause-add").val();
+    var whith_process = $("#whith-process-add").val();
+    var lesson_course = $("#lesson-course-add").val();
+    var improve = $("#improve-add").val();
+
+    $.post('/troubleadd/',{'action':action,'id':id,'trouble_date':trouble_date,'operating_center':operating_center,'business_module':business_module,'trouble_affair':trouble_affair,
+						'affect_scope':affect_scope,'isnot_inner':isnot_inner,'affect_time':affect_time,'isnot_experience':isnot_experience,'affect_user':affect_user,
+						'affect_money':affect_money,'data_source':data_source,'isnot_core':isnot_core,'trouble_type':trouble_type,'heading_user':heading_user,
+						'trouble_attr':trouble_attr,'trouble_status':trouble_status,'trouble_cause':trouble_cause,'whith_process':whith_process,'lesson_course':lesson_course,'improve':improve},function(data){
+				alert(data);
+				$('#myModal-1').modal('hide');
+				location.reload();
+	    });
+});
+
+
+
+//发布故障报告
+$("#sub-plublish").click(function(){
+	var id = $("#add_trouble_time_1").attr('name');
+	var action='publish_trouble';
+	var trouble_date = $("#add_trouble_time_1").val();
+    var operating_center = $("#operating-center-add").val();
+    var business_module = $("#business-module-add").val();
+    var trouble_affair = $("#trouble-affair-add").val();
+    var affect_scope = $("#affect-scope-add").val();
+    var isnot_inner = $("#isnot-inner-add").val();
+    var affect_time = $("#affect-time-add").val();
+    var isnot_experience = $("#isnot-experience-add").val();
+    var affect_user = $("#affect-user-add").val();
+    var affect_money = $("#affect-money-add").val();
+    var data_source = $("#data-source-add").val();
+    var isnot_core = $("#isnot-core-add").val();
+    var trouble_type = $("#trouble-type-add").val();
+    var heading_user = $("#heading-user-add").val();
+    var trouble_attr = $("#trouble-attr-add").val();
+    var trouble_status = $("#trouble-status-add").val();
+    var trouble_cause = $("#trouble-cause-add").val();
+    var whith_process = $("#whith-process-add").val();
+    var lesson_course = $("#lesson-course-add").val();
+    var improve = $("#improve-add").val();
+
+    $.post('/troubleadd/',{'action':action,'id':id,'trouble_date':trouble_date,'operating_center':operating_center,'business_module':business_module,'trouble_affair':trouble_affair,
+						'affect_scope':affect_scope,'isnot_inner':isnot_inner,'affect_time':affect_time,'isnot_experience':isnot_experience,'affect_user':affect_user,
+						'affect_money':affect_money,'data_source':data_source,'isnot_core':isnot_core,'trouble_type':trouble_type,'heading_user':heading_user,
+						'trouble_attr':trouble_attr,'trouble_status':trouble_status,'trouble_cause':trouble_cause,'whith_process':whith_process,'lesson_course':lesson_course,'improve':improve},function(data){
+				alert(data);
+				$('#myModal-1').modal('hide');
+				location.reload();
+	    });
+});
+
+
+//删除故障报告
+$("#sub-del").click(function(){
+	var id = $("#add_trouble_time_1").attr('name');
+	var action='del_trouble';
+    $.post('/troubleadd/',{'action':action,'id':id},function(data){
+				alert(data);
+				$('#myModal-1').modal('hide');
+				location.reload();
+	   });
+});
+
+
+//导出故障报告
+$("#export-trouble").click(function(){
+	var repo_date = $("#datepicker").val();
+	var repo_type = $("#repo-type").val();
+	var trouble_times = $("#trouble-times").html();
+	var stab_per = $("#stab-per").html();
+	var trouble_times_1 = $("#trouble-times-1").html();
+	var stab_per_1 = $("#stab-per-1").html();
+
+	$.post('/exporttrouble/',{'repo_date':repo_date,'repo_type':repo_type,'trouble_times':trouble_times,'stab_per':stab_per,'trouble_times_1':trouble_times_1,'stab_per_1':stab_per_1},function(data){
+	window.open(data,'_blank');
+	});
+
+});
+
+
+
+
+</script>
+
+{% endblock %}

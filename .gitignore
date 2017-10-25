@@ -1,0 +1,4 @@
+/.idea
+/flush_db.sh
+/env_win
+/migrations

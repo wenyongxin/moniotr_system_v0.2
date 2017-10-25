@@ -1,0 +1,17 @@
+﻿.right .r_content{margin-right:none;}
+
+.right .r_message .r_content .panel-primary {width: 100%; height: 40px; background: #428bca; color: #fff;font-size: 22px;line-height: 40px;}
+.right .r_message .r_content .panel-primary h3{margin-left: 20px;}
+.right .r_message .r_content .panel-primary h3 .glyphicon{margin-right: 10px;}
+.right .r_message .r_content .panel-efun {width: 100%; height: 800px; background: #ffffff;}
+.right .r_message .r_content .panel-efun .c_contest{width: 98%; height: 98%; line-height:800px; margin: auto; overflow-y:auto;}
+.right .r_message .r_content .panel-efun .c_contest table{margin-top: 20px; border: 1px solid #000000;}
+.right .r_message .r_content .panel-efun .c_contest table tr th{background: #F3F3F3;}
+.right .r_message .r_content .panel-efun .c_contest table tr td a{cursor: pointer;}
+
+.alert_size .t_content .c_left{height: 100%; width: 40%; border: 1px solid #ddd; float: left; overflow-y:auto;}
+.alert_size .t_content .c_right{height: 100%; width: 58%; float: right;}
+.alert_size .t_content .c_right span{font-size: 20px;}
+.alert_size .t_content .c_right input{font-size: 20px; margin-bottom: 10px;}
+
+.disable_alert{pointer-events:none;}

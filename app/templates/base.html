@@ -1,0 +1,124 @@
+{% from "macros/macro_manager_user.html" import loging %}
+<html>
+	<head>
+        <meta charset="utf-8">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+		<title>{% block title %}{% endblock %}</title>
+		<link rel="icon" href="{{ url_for('static', filename='efun/images/favicon.ico') }}" type="image/x-ico" />
+
+{#		<!--导入bootstrap 3.0 css样式 压缩版-->#}
+		<link href="{{ url_for('static', filename='bootstrap-3.3.0/css/bootstrap.min.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='bootstrap-3.3.0/css/bootstrap-theme.min.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='efun/css/animate.css') }}" rel="stylesheet">
+
+
+{#		<!--导入jquer-->#}
+		<script src="{{ url_for('static', filename='efun/js/jquery.js') }}"></script>
+{#		<!-- 导入bootstrap 3.0 js 压缩版-->#}
+		<script src="{{ url_for('static', filename='bootstrap-3.3.0/js/bootstrap.min.js') }}"></script>
+
+
+{#		<!--加载滚动条效果css样式与js-->#}
+        {% block liMarquee%}
+        <link href="{{ url_for('static', filename='marquee/css/liMarquee.css') }}" rel="stylesheet">
+		<script src="{{ url_for('static', filename='marquee/js/jquery.liMarquee.js') }}"></script>
+        {% endblock %}
+
+
+{#		<!--自定义css样式-->#}
+		<link href="{{ url_for('static', filename='efun/css/bash.css') }}" rel="stylesheet">
+		<link href="{{ url_for('static', filename='efun/css/alert.css') }}" rel="stylesheet">
+
+        <!-- loadding等待条 -->
+        <link href="{{ url_for('static', filename='loading/loading.css') }}" rel="stylesheet">
+		{% block style %}{% endblock %}
+
+	</head>
+
+	<body>
+			<!--弹窗演示-->
+            <div class="alert_size">
+                <div class="a_title">
+                    <div class="t_title">
+                        <span class="t_text"></span>
+                        <span class="t_button">&times;</span>
+                    </div>
+                    <div class="logging">{{ loging() }}</div>
+                    <div class="t_content" id="t_content"></div>
+                </div>
+            </div>
+            <div class="left l_big">
+                <a class="l_log" title="首页" >
+                    <img src="{{ url_for('static', filename='efun/images/log.jpg') }}">
+                </a>
+
+                <!--导航条-->
+                <div>
+                    {% if current_user.sesctions() %}
+                        {% for sesction in  current_user.sesctions()%}
+                            <div class="l_title">
+                                <div class="t_same t_left"><span class="glyphicon {{ sesction['section'].icon.icon_name }}"></span></div>
+                                <div class="t_same t_center">{{ sesction['section'].name }}</div>
+                                <div class="t_same t_right"><span class="glyphicon glyphicon-plus"></span></div>
+                            </div>
+                            <ul class="l_ul">
+                                {% for url in sesction['urls'] %}
+                                    <li><!--class="li_active" 当前选中-->
+                                        <div class="l_icon"><span class="glyphicon {{ url.icon.icon_name }}"></span></div>
+                                        <a class="l_href" href="{{ url.href }}">{{ url.name }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endfor %}
+                    {% else %}
+                        <h1>你还没有权限请申请</h1>
+                    {% endif %}
+                </div>
+            </div>
+			<!--右侧信息条-->
+			<div class="right">
+				<div class="r_nav">
+					<div class="r_switch"><span class="glyphicon glyphicon-align-justify "><span></div>
+					<div class="r_btn">
+						<span class="b_user">欢迎：{{ current_user.username }}</span>
+						<img class="b_avatar" src="{{ url_for('static', filename='users/images/'+current_user.avatar) }}" \>
+						<!--点击用户弹框-->
+						<ul class="dropdown-menu b_list">
+							<li><a href="{{ url_for('auth.change_password') }}"><span class="glyphicon glyphicon-warning-sign"></span>修改密码</a></li>
+							<li><a href="{{ url_for('auth.change_avatar') }}"><span class="glyphicon glyphicon-wrench"></span>修改头像</a></li>
+							<li class="divider"></li>
+							<li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span>退出</a></li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="r_message">
+					<div class="dowebok">
+                        <marquee scrollAmount=4  onmouseover='this.stop();' onmouseout='this.start();' direction=left>
+                            <a href="#"><span class="glyphicon glyphicon-volume-up"></span>故障信息</a>
+                            <a href="#"><span class="glyphicon glyphicon-volume-up"></span>故障信息</a>
+                            <a href="#"><span class="glyphicon glyphicon-volume-up"></span>故障信息</a>
+                            <a href="#"><span class="glyphicon glyphicon-volume-up"></span>故障信息</a>
+                        </marquee>
+					</div>
+                    {% block head_html%}{% endblock %}
+                    <div class="r_content">
+                        {% for message in get_flashed_messages() %}
+                            {% if message['type'] == 'error' %}
+                                <div class="alert alert-warning alert-style"  role="alert">{{ message['message'] }}</div>
+                            {% elif message['type'] == 'ok' %}
+                                <div class="alert alert-success alert-style"  role="alert">{{ message['message'] }}</div>
+                            {% endif %}
+                        {% endfor %}
+						{% block page_content %}{% endblock %}
+					</div>
+				</div>
+			</div>
+
+
+			<script src="{{ url_for('static', filename='efun/js/base.js') }}"></script>
+
+			{% block javascript %}{% endblock %}
+
+	</body>
+</html>

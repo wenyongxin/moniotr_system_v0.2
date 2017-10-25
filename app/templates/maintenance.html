@@ -1,0 +1,461 @@
+{% extends "base.html" %}
+
+{% block title %}维护计划{% endblock %}
+
+{#样式#}
+{% block style %}
+
+
+<link rel="stylesheet" href="/static/report/font-awesome/css/font-awesome.min.css"/>
+<link rel="stylesheet" href="/static/report/css/select2.min.css">
+<link rel="stylesheet" href="/static/report/css/style.css" />
+<link rel="stylesheet" href="/static/report/jquery-ui/jquery-ui.css">
+<script src="/static/report/jquery-ui/jquery-ui.js"></script>
+<link rel="stylesheet" href="/static/report/css/jquery-ui-timepicker-addon.css" />
+<script src="/static/report/js/jquery-ui-timepicker-addon.js"></script>
+
+<style>
+
+.right{width: 1690px; height: 100%; background: #ddd; position:absolute;top: 0px; right: 0px;overflow-y:scroll}
+.right .r_content{width:98.5%; height: 82%; float:right; position: absolute; margin-top:10px;}
+
+.table-responsive {
+    min-height: .01%;
+    overflow-x: hidden;
+}
+
+.panel {
+    margin-bottom: 20px;
+    background-color: #F5F5F5;
+}
+
+</style>
+
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+
+	<div class="row">
+		<div class="col-xs-12" style="padding-left: 60px;padding-right: 15px;">
+
+			<div class="table-header" style="background-color:#357EBD;height: 45px;padding-right: 20px;overflow: hidden;">
+				<div style="width: 25%;float: left;font-size: 20px;	">维护任务计划</div>
+
+				<div class="pull-right" style="padding-top:5px;">
+					<button class="btn btn-success" data-toggle="modal" data-target="#maintenance-add" id="add-maintenance">添加记录</button>
+					<button class="btn btn-info"  id="get_main">同步</button>
+				</div>
+
+			</div>
+
+			<div class="table-responsive" style="margin-top:-3px;overflow-y:auto; zoom:0.8;margin-top:15px;max-height:98%;">
+				<div class="row" >
+					{% for main in data_list %}
+					<div class="col-lg-2 col-md-3 col-sm-4" name="main-alter" mainid="{{ main.id }}" info="{{ main.main_info }}">
+						{% if main.main_type == '日常维护' %}
+							{% if main.main_status == '维护中' %}
+								<div class="panel panel-success" style="height:188px;overflow-y:hidden" name="main-style">
+							{% elif main.main_status == '已过期' %}
+								<div class="panel panel-danger" style="height:188px;overflow-y:hidden" name="main-style">
+							{% else %}
+								<div class="panel panel-info" style="height:188px;overflow-y:hidden" name="main-style">
+							{% endif %}
+						{% else %}
+
+						<div class="panel panel-primary" style="height:188px;overflow-y:hidden" name="main-style">
+						{%endif%}
+						  <div class="panel-heading">
+							<span name="main-type">类型 :{{ main.main_type }}</span>
+						  </div>
+						  <div style="padding-left:15px;">
+							  <h4 name="start-time">开始 ：{{ main.start_time }}</h4>
+							  <h4 name="end-time">结束 ：{{ main.end_time }}</h4>
+						  </div>
+						  <div class="panel-footer">
+							  <span name="group-name">游戏 ：{{ main.group_name }}</span>
+						  </div>
+						</div>
+
+					</div>
+					{% endfor %}
+				</div>
+
+			</div>
+
+
+		</div>
+
+	</div>
+
+	<div class="modal fade" id="maintenance-add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="width: 40%;min-width:750px;margin-top: 10%;">
+			<div class="modal-content" >
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title" id="myModalLabel">添加维护计划</h4>
+				</div>
+
+				<div class="modal-body">
+
+
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="form-group">
+								<h5 >维护事件</h5>
+								<input type="text" id="main_info" class="form-control">
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="form-group">
+								<h5>开始时间</h5>
+								<input type="text" class="form-control" id="start_time" style="z-index:1050">
+
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<div class="form-group">
+								<h5>结束时间</h5>
+								<input type="text" class="form-control" id="end_time" style="z-index:1050">
+
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="form-group">
+								<h5>主机组</h5>
+								<select id="groupid" multiple="multiple" class="form-control" style="width: 100%;">
+									{% for group in hostgroup_info %}
+									<option value="{{ group.group_id }}">{{ group.group_name }}</option>
+									{% endfor %}
+								</select>
+
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-sm-12">
+							<div class="form-group">
+								<h5>维护类型</h5>
+								<select id="main_type"  class="form-control" style="width: 100%;">
+									<option value="0" selected>日常维护</option>
+									<option value="2">周期维护(天)</option>
+									<option value="3">周期维护(周)</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-sm-12" id="main_rule">
+
+						</div>
+					</div>
+
+				</div>
+
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" id='main_add_sub'>提交</button>
+
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+
+<script src="/static/report/js/echarts.min.js"></script>
+<script  src="/static/report/js/select2.min.js"></script>
+<script  src="/static/report/js/popover.js"></script>
+
+<script type="text/javascript">
+
+$("#add-maintenance").click(function(){
+	$("#main_info").val('');
+	$("#main_info").attr('mainid','');
+	$("#groupid").val('').select2({tags: true,});
+	$("#start_time").val('');
+	$("#end_time").val('');
+
+});
+
+$("div [name='main-alter']").dblclick(function(){
+
+	var style = $(this).children("[name='main-style']").attr('class');
+
+	var color_style = style.match(/\w+\-\w+/g);
+	if(color_style[0] != 'panel-primary'){
+		var ID = $(this).attr('mainid');
+		var info = $(this).attr('info');
+		var main_type = $(this).find("[name='main-type']").text();
+		var start_time = $(this).find("[name='start-time']").text();
+		var end_time = $(this).find("[name='end-time']").text();
+		var group_name = $(this).find("[name='group-name']").text();
+
+		var stime = start_time.replace('开始 ：','');
+		var etime = end_time.replace('结束 ：','');
+		var group = group_name.replace('游戏 ：','');
+
+		var group_id
+		$("#groupid option").each(function(){
+
+			if($(this).text() == group){
+				group_id = $(this).attr("value")
+			}
+			});
+
+
+		$("#maintenance-add").modal({ show: true, backdrop: 'static' });
+		$("#main_info").val(info);
+		$("#groupid").val(group_id).select2({tags: true,});
+		$("#start_time").val(stime);
+		$("#end_time").val(etime);
+		$("#main_info").attr("mainid",ID);
+	} else{
+
+		alert("周期计划暂不支持修改！");
+	}
+});
+
+
+
+$('#start_time').datetimepicker({
+	dateFormat: "yy-mm-dd",
+	timeFormat: "HH:mm",
+	hourGrid: 4,
+	minuteGrid: 10,
+});
+
+$('#end_time').datetimepicker({
+	dateFormat: "yy-mm-dd",
+	timeFormat: "HH:mm",
+	hourGrid: 4,
+	minuteGrid: 10,
+});
+
+
+//索引框
+$("#groupid").select2({
+    tags: true,
+  });
+
+$("#main_type").change(function(){
+  	var main_type = $(this).val();
+  	$("#main_rule").empty();
+  	if(main_type=='2'){
+		var	html =`
+			<div class="row">
+				<div class="col-sm-4">
+					<div class="form-group">
+						<h5>每()天</h5>
+						<input type="text" id='every' value='1' class="form-control">
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<h5>开始维护时间</h5>
+						<input type="text" id='stime' class="form-control">
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<div class="form-group">
+						<h5>维护时长(分钟)</h5>
+						<input type="text" id='ltime' class="form-control">
+					</div>
+				</div>
+
+			</div>
+
+			`
+			scrt = '<script type="text/javascript">$("#stime").timepicker();<'+'/script>'
+			html += scrt
+  		}
+  		else if(main_type=='3'){
+			var	html =`
+				<div class="row">
+					<div class="col-sm-3">
+						<div class="form-group">
+							<h5>每()周</h5>
+							<input type="text" id='every' value='1' class="form-control">
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group">
+							<h5>星期</h5>
+							<select id="main_day" multiple="multiple" class="form-control" style="width: 100%;">
+								<option value="1">星期一</option>
+								<option value="2">星期二</option>
+								<option value="4">星期三</option>
+								<option value="8">星期四</option>
+								<option value="16">星期五</option>
+								<option value="32">星期六</option>
+								<option value="64">星期日</option>
+							</select>
+						</div>
+					</div>
+
+					<div class="col-sm-3">
+						<div class="form-group">
+							<h5>开始维护时间</h5>
+							<input type="text" id='stime' class="form-control">
+						</div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group">
+							<h5>维护时长(分钟)</h5>
+							<input type="text" id='ltime' class="form-control">
+						</div>
+					</div>
+
+				</div>
+
+				`
+				scrt = '<script type="text/javascript">$("#stime").timepicker();$("#main_day").select2();<'+'/script>'
+				html += scrt
+
+  		}
+
+
+  	$("#main_rule").append(html);
+
+});
+
+
+
+$("#main_add_sub").click(function(){
+	var ID = $("#main_info").attr("mainid");
+	var main_info = $("#main_info").val();
+	var start_time = $("#start_time").val();
+	var end_time = $("#end_time").val();
+	var groupid = $("#groupid").val();
+	var main_type = $("#main_type").val();
+	var every = $("#every").val();
+	var main_day = '0';
+	var stime = $("#stime").val();
+	var ltime = $("#ltime").val();
+    var group = '';
+	for(i in groupid){
+		 group += groupid[i]+',';
+	}
+	groupid = group
+	if(main_type=='3'){
+
+		var main_day = $("#main_day").val();
+		var days = 0;
+		for(i in main_day){
+			days += Number(main_day[i]);
+		}
+		main_day=days;
+	}
+
+	$.post('/createmain',{"ID":ID,'main_info':main_info,'start_time':start_time,'end_time':end_time,'groupid':groupid,'main_type':main_type,
+		'every':every,'main_day':main_day,'stime':stime,'ltime':ltime},function(data){
+		if(data){
+			alert(data);
+		}else{
+			location.reload();
+		}
+	});
+
+
+});
+
+$("#get_main").click(function(){
+
+	$.post('/getmain',{},function(data){
+		alert(data);
+		location.reload();
+	});
+});
+
+
+//设置时间格式
+Date.prototype.Format = function (fmt) { //author: meizz
+    var o = {
+        "M+": this.getMonth() + 1, //月份
+        "d+": this.getDate(), //日
+        "h+": this.getHours(), //小时
+        "m+": this.getMinutes(), //分
+        "s+": this.getSeconds(), //秒
+        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+        "S": this.getMilliseconds() //毫秒
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+}
+
+
+
+//自动匹配维护信息里面的时间
+$("#main_info").on('input',function(){
+   var main_info = $(this).val();
+   if(main_info){
+   		var timestr = main_info.match(/\d+:\d+/g);
+
+   		var day = main_info.match(/\d+\/\d+/g);
+
+   		var Day = main_info.match(/\d+月\d+/g);
+
+   		if(timestr){
+			var stime = timestr[0]
+			var etime = timestr[1]
+			if(day){
+				var year = new Date().Format("yyyy");
+				var date = day[0].replace('/','-');
+				var today = year + '-' +date;
+			}
+			else if(Day){
+				var year = new Date().Format("yyyy");
+				var date = Day[0].replace('月','-');
+				var today = year + '-' +date;
+			}
+			else{
+				var today = new Date().Format("yyyy-MM-dd");
+			}
+
+			start_time = today+' '+stime
+			end_time = today+' '+etime
+			$("#start_time").val(start_time)
+			$("#end_time").val(end_time)
+   		}else{
+   			$("#start_time").val('')
+			$("#end_time").val('')
+   		}
+   }
+});
+
+
+/*
+//页面加载完后展开左边导航和滚动条
+window.onload = function(){
+    //获取当前页面url
+	var cur_url = window.location.pathname;
+	$('ul.l_ul li').each(function(){
+		 var li_url = $(this).find('a').attr('href');
+		 if(li_url==cur_url){
+		    $(this).addClass('li_active');
+		 	$(this).parent().css('display','block');
+
+		 }
+	});
+};
+
+*/
+
+
+
+</script>
+
+{% endblock %}

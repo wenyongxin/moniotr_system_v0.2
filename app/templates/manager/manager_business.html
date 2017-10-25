@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% from "macros/macro_manager_user.html" import user_input,user_select %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{#样式#}
+{% block style %}
+    <style type="text/css">
+        /*弹窗样式开始*/
+        .alert_info{width:838px; height:368px;}
+        .alert_left{float: left; height: 100%; width: 400px;}
+        .alert_left .l_input{width: 90%; height: 35px; margin: auto; margin-top: 20px;}
+        .alert_left .l_input .form-control {width: 84%; float: left}
+        .alert_left .l_input .btn{float:left}
+        .alert_left .l_checkboes{height:78%;width:89%;border: 1px solid #F3F3F3;margin: auto;margin-top: -25px; overflow-y: auto; font-size: 18px;}
+        .alert_left .l_checkboes .c_title{background: #428bca;border: 1px solid #fff;color: #fff;height: 40px;line-height: 40px;border-radius: 6px;cursor: pointer;}
+        .alert_left .l_checkboes .c_title .alert_title{margin-left: 10px;}
+        .alert_left .l_checkboes .c_title .t_icon{float:right;margin-top:-29px;margin-right:16px;}
+        .alert_left .l_checkboes .l_select{display:none;}
+        .alert_left .l_checkboes .l_select .l_list{height: 30px;width:100%;border: 1px solid #F3F3F3;line-height: 30px;text-overflow: ellipsis;overflow: hidden;}
+        .alert_left .l_checkboes .l_select .l_list input{margin-left: 10px;}
+        .alert_left .l_checkboes .l_select .l_list .l_font{color: #6B6B6B;text-decoration: none;cursor: pointer;display: block;width: 92%;margin-top: -20px;margin-left: 26px;}
+        .waiting{transform: rotate(48deg);}
+
+        .alert_right{float: right; height: 100%; width: 430px;}
+        .alert_right .input-group{margin-top: 20px; width:90%; margin-left: 17px;}
+        .alert_right .r_describe{margin: 0px; height: 113px; width: 334px;}
+        .alert_right button{margin-top: 20px;width: 90%; margin-left: 17px;}
+        .table td a{cursor: pointer; margin-left: 15px;}
+        .table td a:hover{color: #000;}
+        /*弹窗样式结束*/
+
+
+        .title_icon{margin-right:10px;}
+        .add_icon{float:right;margin-top: -17px;cursor: pointer;}
+        .right .r_message .r_content .panel .panel-body{height:780px;}
+        .table-bordered{margin-top:20px; width:98%; margin: auto;}
+        .table-bordered th{background:#F3F3F3;}
+        /*重构弹窗*/
+        .alert_size .a_title{width:850px; height:430px; margin-top:-215px; margin-left:-425px;}
+        .alert_size .a_title .t_content{width: 100%; height: 100%; margin-top:0px;}
+
+    </style>
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title"><span class="glyphicon glyphicon-stats title_icon"></span>{{ self.title() }}</h3>
+            <h3 class="panel-title"><span class="glyphicon glyphicon glyphicon-cog add_icon"></span></h3>
+        </div>
+        <div class="panel-body panel-efun">
+            <table class="table table-bordered">
+                <tr>
+                    <th>序号</th>
+                    <th>名称</th>
+                    <th>隶属</th>
+                    <th>排序</th>
+                    <th>索引主机</th>
+                    <th>操作</th>
+                </tr>
+                {% for line in business %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ line.name }}</td>
+                        <td>{{ line.sections.href }}</td>
+                        <td>{{ line.sort }}</td>
+                        <td>{{ line.hostip}}</td>
+                        <td>
+                            <a onclick="edit_line('{{ line.id }}')">
+                                <span class="glyphicon glyphicon-pencil">修改</span>
+                            </a>
+                            <a onclick="del_line('{{ line.id }}')">
+                                <span class="glyphicon glyphicon-trash">删除</span>
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+    //通过手动选择哪个显示
+    function show_list(id){
+        var checkbox_id = '#l_select_' + id;
+        var icon_id = '.t_icon_' + id;
+        $(checkbox_id).toggle(function(){
+            if($(this).is(':hidden')){
+                $(icon_id).find('span').addClass('waiting');
+            } else{
+                $(icon_id).find('span').removeClass('waiting');
+            }
+        });
+    }
+
+
+    //点击文字自动选中checkbox
+//    function click_class(class_name){
+//        var class_id = '.' + class_name;
+//        if($(class_id).is(':checked')){
+//            $(class_id).removeAttr('checked');
+//        }else{
+//            $(class_id).attr('checked','true');
+//        }
+//    }
+
+
+    //查找ip信息的按钮功能
+    function search_ip(action_type){
+        $('#loading').html("<h1>loading...<\/h1>");
+        var action_type = $('.action_type').val();
+        var ip = $('#search_ip').val();
+        if(ip){
+            $.get(
+                    '/search_ip',
+                    {
+                        'ip':ip,
+                        'type':action_type
+                    },
+                    function(data){
+                        $('.l_checkboes').html(data);
+                    }
+            );
+        }else{
+            alert('请输入ip再查找')
+        }
+    }
+
+    //创建功能功能
+    $('.add_icon').click(function(){
+        show_alert();
+    })
+
+    //修改功能
+    function edit_line(id){
+        show_alert(id);
+    }
+    //删除功能
+    function del_line(id){
+        if(window.confirm("确定要删除吗?")) {
+            business_button('delete', id)
+        }
+    }
+
+
+    //隐藏全部
+    //判断选项卡下方的checkbox中是否有选中的。有选中的就将该列信息展示出来
+    function hide_list_all(){
+        $('.l_select').hide();
+        $('.c_title').each(function(i){
+            if ($(this).text().indexOf('is_check') != -1){
+                $('.t_icon').eq(i).click();
+            }
+        })
+    }
+
+
+    function show_alert(id=0){
+        $('.alert_size').show();
+        $('.t_text').text("业务管理");
+
+        $.get(
+                '/search',
+                {'id':id},
+                function(data){
+                    $('.t_content').html(data);
+                }
+        )
+    }
+
+    function check_items(){
+        var items = new Array();
+        $('input[name="items_checkbox"]:checkbox').each(function(){
+            if($(this).is(':checked')){
+                items.push($(this).val());
+            }
+        })
+        return items
+    }
+
+
+    //按钮操作。实现增删改的响应信息
+    function business_button(action, id){
+        if(action != 'delete'){
+            var hostip = $('#search_ip').val();
+            var name = $('.r_name').val();
+            var describe =  $('.r_describe').val();
+            var sections_id = $('.r_sections').val();
+            var sort = $('.r_sort').val();
+            var items = check_items().join(',');
+            if (!hostip){
+                alert('搜索的ip不能为空');
+                return
+            }else if(!name){
+                alert('命名不能为空')
+                return
+            }else if(!describe){
+                alert('描述不能为空')
+                return
+            }else if(!items){
+                alert('item选择不能为空')
+                return
+            }else if(!sort){
+                alert('排序不能为空')
+                return
+            };
+            var datas = {
+                        'hostip':hostip,
+                        'name':name,
+                        'describe':describe,
+                        'sections_id':sections_id,
+                        'sort':sort,
+                        'items':items
+            };
+        }else{
+            var datas = {};
+        }
+        var url = '/action/' + action + '/' + id;
+
+        $.post(
+                url,
+                datas,
+                function(data){
+                    if(data['code'] == 200){
+                        window.location.reload();
+                    }
+                }
+        )
+    }
+
+</script>
+
+{% endblock %}

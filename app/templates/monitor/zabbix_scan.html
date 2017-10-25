@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% from "macros/macro_manager_user.html" import loging %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{#样式#}
+{% block style %}
+<script type="text/javascript" src="{{ url_for('static', filename='efun/js/ss.js') }}"></script>
+<style>
+    /*重构弹窗*/
+    .alert_size .a_title .t_content {height: 84%; width: 90%; margin-top: 20px; overflow-y: none;}
+    .alert_size .a_title {width: 1142px;height: 520px;margin-top: -275px;margin-left: -571px;}
+
+    /* 本例子css */
+    .outBox{ width:100%; border:1px solid #ddd; position:relative; margin-top: 35px;}
+    .outBox .hd{ width:450px; height:30px; line-height:30px; border-bottom:1px solid #ddd;position:absolute; top:-31px; left:-1px;}
+    .outBox .hd ul{ float:left; position:absolute;top:-1px; height:32px; list-style:none; }
+    .outBox .hd ul li{ float:left; padding:0 20px; cursor:pointer;margin-right:3px; background:#f8f8f8;border:1px solid #ddd;}
+    .outBox .hd ul li.on{background:#428BCA;color: #fff;}
+    .inBox{position:relative; width: 100%; height: 100%; border: 2px solid #428BCA; background: #fff; overflow-y:scroll;}
+
+    .i_title{width: 100%; height: 40px; background: #428BCA;}
+    .i_title .table_head{float: left; font-family: "微软雅黑"; font-size: 16px; text-align: center; height: 100%; text-decoration: none; color: #000; font-weight: bold; cursor: pointer;}
+    .i_title .table_head:hover{color: #fff;}
+    .tempWrap{height: 750px; width: 100%;background: #fff;}
+
+    .zabbix_icon{margin-left: 15px; cursor: pointer;}
+
+    .table_2_p{width: 2%}
+    .table_4_p{width: 4%}
+    .table_35_p{width: 35%; cursor: pointer;}
+    .table_40_p{width: 40%}
+    .table_6_p{width: 7%}
+    .table_8_p{width: 8%}
+
+    /* 弹窗中的graph的css样式 */
+    #image_grouph{cursor: pointer; width: 1015px; height: 376px;}
+
+    /* 重构logging条 */
+    .loadEffect{margin-top: 0px;}
+
+    /* 异常报警中多个item的值选择 */
+    .items_list{position: fixed;z-index: 3;border: 1px solid #428BCA;background: #fff;width: 10%;margin-top: 5px;}
+    .items_list span{margin-left: 7px; cursor: pointer;}
+    .items_list span:hover{font-weight: bold;}
+
+    /* 定义弹窗中的显示元素位置 */
+    #showgrouph_div{float: right; width: 100%; margin-bottom: 10px;}
+    #showvalue_div{float: right;}
+    .values{overflow-y: scroll; height: 390px; width: 100%;}
+
+</style>
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+    <div class="outBox">
+        <div class="hd">
+            <ul>
+                <li>故障信息</li>
+                <li>维护中</li>
+            </ul>
+        </div>
+
+        <div class="i_title">
+            <table class="table">
+                <tr>
+                    <th class="table_head table_2_p"><input type="checkbox" id="all_checkbox"></th>
+                    <th class="table_head table_35_p">主机信息</th>
+                    <th class="table_head table_4_p">图表</th>
+                    <th class="table_head table_40_p">报警项目</th>
+                    <th class="table_head table_4_p">执行</th>
+                    <th class="table_head table_8_p">负责人</th>
+                    <th class="table_head table_7_p">故障时长</th>
+                </tr>
+            </table>
+        </div>
+        <div class="tempWrap">
+            <div class="bd">
+                <div class="inBox">
+                    <div class="inBd" id="problem">
+                        {{ loging() }}
+                    </div>
+                </div>
+                <div class="inBox">
+                    <div class="inBd" id="maintenance">
+                        {{ loging() }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{# jq #}
+{% block javascript %}
+<script>
+
+    jQuery(".outBox").slide({trigger:"click"});
+
+    //ajax获取监控信息功能
+    function zabbix_update(fun){
+        var ajaxTimeout = $.ajax({
+            'url':'/monitor/zabbix.json',
+            'data':{'auth': "{{ auth | e }}", 'fun': fun},
+            'type': "POST",
+            'timeout':1000*60*5,
+            success:function(data){
+                if(fun == '故障'){
+                    $('#problem').html(data);
+                }else if(fun == '维护'){
+                    $('#maintenance').html(data);
+                }
+            },complete : function(XMLHttpRequest,status){
+                //超时,status还有success,error等值的情况
+                if(status=='timeout'){
+                    ajaxTimeout.abort();
+                    console.log("超时");
+                }
+            }
+        })
+    }
+
+    //打开页面后刷去报警信息
+    //自动轮训故障、维护两个信息
+    function default_fun(){
+        var funs = ['故障', '维护']
+        $.each(funs, function(i){
+            zabbix_update(funs[i]);
+        })
+    }
+
+    //首次开启默认执行函数
+    default_fun()
+
+    //定时器1分钟刷新一次
+//    setInterval(function(){
+//        default_fun();
+//        console.log('监控信息已经刷新');
+//    },1000*60);
+
+
+    function return_title(id){
+        $('.alert_size').show();
+        var title = $('.table_35_p').eq(id).text();
+        $('.t_text').text(title);
+        return title
+    }
+
+
+    //grouph图片查看
+    function button_graph(id, itemid){
+        var title = return_title(id);
+        var reg = /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/;
+        var ip = title.match(reg)[0];
+        var new_items = itemid.join(',');
+        var data = {'itemids':new_items, 'ip':ip};
+
+        $.get(
+                '/monitor/showgraph',
+                data,
+                function(data){
+                    $('.t_content').html(data);
+                    var itemid = $('.showgrouph option:selected').val();
+                    get_png_src(itemid=itemid, graphid=null);
+                    select_change('itemid');
+                }
+        )
+    }
+
+    //获取图片的路径
+    function get_png_src(itemid=null, graphid=null){
+
+        if (itemid){
+            var url = "/monitor/graph.png" + "?itemid=" + itemid + "&update=" + Math.random();
+            $('#image_grouph').attr('itemid', itemid);
+        }else if(graphid){
+            var url = "/monitor/graph.png" + "?graphid=" + graphid + "&update=" + Math.random();
+            $('#image_grouph').attr('graphid', graphid);
+        }
+
+        $('#image_grouph').attr('src', url);
+    }
+
+    //下拉列表自动匹配
+    function select_change(type){
+        $('.showgrouph').change(function(){
+            var id = $(this).val();
+            $('#image_grouph').attr('src', '');
+            if(type == 'itemid'){
+                var itemid = id;
+                var graphid = null;
+            }else if(type == 'graphid'){
+                var itemid = null;
+                var graphid = id;
+            }
+            get_png_src(itemid=itemid, graphid=graphid);
+        })
+    }
+
+    //点击主机名称获取graphs信息
+    function alert_hosts(id, hostid){
+        return_title(id);
+        var data = {'hostid':hostid};
+
+        $.get(
+                '/monitor/selectgraph',
+                data,
+                function(data){
+                    $('.t_content').html(data);
+                    var graphid = $('.showgrouph option:selected').val();
+                    get_png_src(itemid = null, graphid = graphid);
+                    select_change('graphid');
+                    $('#image_grouph').attr('hostid', hostid);
+                }
+        )
+    }
+
+
+    //重新定义弹窗关闭按钮
+    $('.t_button').click(function(){
+        $('.t_content').empty();
+    })
+
+    //获取grouph图片跳转到zabbix页面上
+    function more_infos(boole){
+        var itemid = $('#image_grouph').attr('itemid');
+        var graphid = $('#image_grouph').attr('graphid');
+        var hostid = $('#image_grouph').attr('hostid');
+        var table_itemid = $('.table').attr('itemid');
+        if(itemid){
+            var data = {'itemid':itemid, 'boole':boole};
+        }else if(graphid && hostid){
+            var data = {'graphid':graphid, 'hostid':hostid, 'boole':boole};
+        }else if(table_itemid){
+            var data = {'itemid':table_itemid, 'boole':boole};
+        }
+
+        $.get(
+                '/monitor/to_zabbix',
+                data,
+                function(data){
+                    window.open(data);
+                }
+        )
+    }
+
+    //查看日志类型item的信息
+    function button_values(id, itemid){
+        return_title(id);
+        var itemid = itemid.join(',');
+        $.get(
+                '/monitor/showvalue',
+                {'itemid':itemid},
+                function(data){
+                    $('.t_content').html(data);
+                    $('.table').attr('itemid', itemid);
+                }
+        )
+    }
+
+
+    //checkbox选择框
+    $('#all_checkbox').click(function(){
+        var This = $(this).is(':checked');
+        $('.problem_checkbox').each(function(){
+            $(this).attr('checked', This);
+        })
+    })
+
+</script>
+{% endblock %}

@@ -1,0 +1,306 @@
+{% extends "base.html" %}
+{% from "macros/macro_manager_user.html" import business_table %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{#样式#}
+{% block style %}
+    <link href="{{ url_for('static', filename='bootstrap-3.3.0/css/datetimepicker.css')}}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='highstock/highstock.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap-3.3.0/js/bootstrap-datetimepicker.min.js') }}"></script>
+    <link href="{{ url_for('static', filename='loading/loading.css') }}" rel="stylesheet">
+    <style>
+        /*重构弹窗样式*/
+        .alert_size .a_title {width: 1400px; height: 780px; margin-top: -390; margin-left: -700px;}
+        .alert_size .a_title .t_content{height: 90%; width: 99%;}
+        .insert_alert{display: none;}
+        .button_title{float:left; width: 100%; height: 30px; line-height: 30px; font-size: 20px; border: 1px solid #ddd; background: #428bca; cursor: pointer; color: #fff;}
+        .button_title span{margin-left: 10px;}
+        .button_title:hover{background: #1E5280; font-size: 18px;}
+        #content{overflow:scroll; height: 600px; border: 1px solid #ddd; display: none;}
+        #content .infos{float: left; width: 49%; margin-left: 5px;}
+        #content .trigger{float: right; width: 49%; margin-right: 5px;}
+
+        .right .r_content{overflow:scroll;}
+        .time_left{float:left;margin-top: -30px;margin-left: 15px;}
+        .time_left ul li{cursor: pointer;}
+        .time_right{float:right;margin-top: -11px;font-size: 15px;margin-right: 10px;}
+        .form-control{display: inline;width: 33%;}
+        .btn-default{margin-top: -4px;}
+        .right .r_message .r_content .loading{position: absolute;width: 100%;height: 100%;background: rgba(21, 21, 21,.5);top: 0;left: 0;z-index: 5; display: none;}
+
+        .container-graph{cursor: pointer;float: right;margin-top: -17px;}
+
+        /*选择按钮*/
+        .bs-example{width: 96%; margin: auto; border-radius: 10px; margin-top: 10px; box-shadow: 0px 2px 10px 0px; background: #fff;}
+    </style>
+
+{% endblock %}
+
+{% block head_html%}
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+    <div class="loading">
+        <div class="main">
+            <div class="loadEffect">
+                <div><span></span></div>
+                <div><span></span></div>
+                <div><span></span></div>
+                <div><span></span></div>
+            </div>
+        </div>
+    </div>
+    {% for line in data %}
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{ line.name }}</h3>
+                <span class="glyphicon glyphicon-signal container-graph" onclick="alert_infos({{ loop.index0 }})"></span>
+            </div>
+            <div class="panel-body">
+
+                {% if loop.index0 == 0 %}
+                    <div class="time_left">
+                        <ul class="pagination pagination-sm">
+                            <li><a class="one_day_time_range">1h</a></li>
+                            <li><a class="one_day_time_range">2h</a></li>
+                            <li><a class="one_day_time_range">6h</a></li>
+                            <li><a class="one_day_time_range">12h</a></li>
+                            <li><a class="one_day_time_range">1d</a></li>
+                        </ul>
+                    </div>
+                    <div class="time_right">
+                        <span>Start</span>
+                        <input type="text" size="16" class="form-control start_datetime">
+                        <span>End</span>
+                        <input type="text" size="16" class="form-control end_datetime">
+                        <a class="btn btn-default" onclick="time_range()" role="button">查询</a>
+                    </div>
+                {% endif %}
+                <div id="container-{{ loop.index0 }}"></div>
+                {% set tmp_num = loop.index0 %}
+
+
+                <div style="display: none;" class="insert_alert-{{ tmp_num }}">
+                    {% for item in line.items | to_list %}
+                        {% set this_item = loop.index0 %}
+                        <div class="button_title" onclick="button_title({{ this_item }})">
+                            <span>{{ item | to_name }}</span>
+                        </div>
+                        <div id='content' class="content-{{ loop.index0 }}">
+                            <div class="infos">
+                                {{ business_table('原始数据', 'info_datas', tmp_num, this_item) }}
+                            </div>
+                            <div class="trigger">
+                                {{ business_table('报警记录(1天)', 'info_trigger', tmp_num, this_item) }}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %} 
+
+
+{# jq #}
+
+{% block javascript %}
+<script>
+
+    var timer;
+
+
+    //弹框中的文字按钮
+    function button_title(id){
+        var table = '.content-' + id;
+        $(table).toggle();
+    }
+
+    //自定义标签导航条点击按钮
+    $('.nav_alert_title').click(function(event){
+        event.preventDefault(); // 阻止默认事件
+        event.stopPropagation(); // 阻止冒泡
+        alert($(this));
+    })
+
+
+
+    //loading控制开关
+    function loading(action='on'){
+        if(action == 'on'){
+            $('.loading').show();
+        }else if(action == 'off'){
+            $('.loading').hide();
+        }
+    }
+
+
+
+    //ajax get方式获取数据
+    function ajax_get(start=0, end=0, web_range='0', web_path='0'){
+        if(start != 0 && end != 0 && web_path != '0'){
+            var data = {'start':start, 'end':end, 'path':web_path}
+        }else if(web_range != '0'){
+            var data = {'range': web_range}
+        } else{
+            var data = {};
+        }
+        loading();
+        $.get(
+            '/{{ url | e }}/ajax.json',
+            data,
+            function(data){
+                if(data['code'] == 400){
+                    alert(data['message'])
+                }else if(data['code'] == 200){
+                    loading('off');
+                    if(start != 0 && end !=0){
+                        //初始化之前检测是否包含临时标签。如果有则移除
+                        var pangination = $('.pagination-sm');
+                        $.each(pangination.find('li'),function(){
+                            if($(this).attr('id') == 'tmp-li'){
+                                $(this).remove();
+                            }
+                        })
+                        pangination.append("<li id=\"tmp-li\" class=\"active\"><a>" + data['range'] + "</a></li>");
+                        //关闭ajax的自动刷新
+                        clearInterval(timer);
+                        //移除所有默认的选中标签
+                        $('.one_day_time_range').each(function(){
+                            $(this).parents().removeClass('active');
+                        })
+                    }
+
+                    //用于做事件范围默认标识
+                    $('.one_day_time_range').each(function(){
+                        if($(this).text() == data['range']){
+                            $(this).parents().addClass('active');
+                            if($('#tmp-li')){
+                                $('#tmp-li').empty();
+                            }
+                        }else{
+                            $(this).parents().removeClass('active');
+                        }
+                    })
+
+
+                    $.each(data['message']['infos'], function(a){
+                        $.each(data['message']['infos'][a]['datas'], function(b){
+                            var html = '<tr><th>序号</th><th>日期</th><th>值</th></tr>'
+                            $.each(data['message']['infos'][a]['datas'][b]['data'], function(c){
+                                var value = data['message']['infos'][a]['datas'][b]['data'][c];
+                                var num = c + 1;
+                                var datetime = data['message']['datetime'][c];
+                                html += '<tr><td>' + num + '</td><td>' + datetime + '</td><td>' + value +'</td></tr>'
+                            })
+
+                            var table_id = '#info_datas_' + a + '_' + b;
+                            $(table_id).empty();
+                            $(table_id).html(html);
+                        })
+                    });
+
+
+
+                    //用于做多组图片自动生成
+                    $.each(data['message']['infos'],function(i){
+                        var container_id = "#container-" + i;
+
+                        $(container_id).highcharts({
+                            chart: {
+                                type: 'area'
+                            },
+                            title: {
+                                text: data['message']['infos'][i]['name']
+                            },
+                            yAxis: {
+                                title: {
+                                    text: 'efun统计图'
+                                }
+                            },
+                            tooltip: {
+                                split: true,
+                                valueSuffix: ' %'
+                            },
+                            xAxis: {
+                                categories: data['message']['datetime'],
+                            },
+                            series: data['message']['infos'][i]['datas']
+                        });
+                    })
+                }
+            }
+        )
+    }
+
+    //定时器
+    function timers(){
+        timer = setInterval(function(){ajax_get()},1000*60*2);
+    }
+
+    //页面开启以后，自动加载
+    $(function(){
+        //开启以后自动刷新
+        ajax_get()
+        //开启以后启动定时器
+        timers()
+    })
+
+
+    //时间插件。可以紫铜填写日期
+    $(".start_datetime").datetimepicker({format: 'yyyy-mm-dd hh:ii'});
+    $(".end_datetime").datetimepicker({format: 'yyyy-mm-dd hh:ii'});
+
+    //一天内时间选择器
+    $('.one_day_time_range').click(function(event){
+        event.preventDefault(); // 阻止默认事件
+        event.stopPropagation(); // 阻止冒泡
+        var title = $(this).text();
+        ajax_get(start=0, end=0, web_range=title);
+        if (title != '1h'){
+            //如果在数据时间段查看的时候关闭定时器
+            clearInterval(timer);
+        }else{
+            //选择一小时则恢复定时器
+            timers();
+        }
+    })
+
+    //时间段范围查询按钮
+    function time_range(){
+        var start = $('.start_datetime').val();
+        var end = $('.end_datetime').val();
+        if(!start){
+            alert('开始时间不能为空');
+            return;
+        }else if(!end){
+            alert('结束时间不能为空');
+            return;
+        }else if(start >= end){
+            alert('开始时间不能大于或等于结束时间')
+            return;
+        }
+        var path = location.pathname;
+        ajax_get(start=start, end=end, web_range='0', web_path=path)
+    }
+
+    //定义图片点击按钮的动作
+    function alert_infos(id){
+        var c_class='.insert_alert-'+id;
+        $('.t_text').text($('.panel-title').eq(id).text());
+        $('.t_content').html($(c_class).html());
+        $('.alert_size').show();
+    }
+
+    $('.t_button').click(function(){
+        $('.t_content').each(function(){
+            $(this).empty();
+        })
+    })
+
+
+</script>
+{% endblock %}
+

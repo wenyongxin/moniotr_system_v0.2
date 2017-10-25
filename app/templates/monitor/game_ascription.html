@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{#样式#}
+{% block style %}
+	<link href="../../static/bootstrap-3.3.0/css/bootstrap-switch.min.css" rel="stylesheet">
+	<script src="../../static/bootstrap-3.3.0/js/bootstrap-switch.min.js"></script>
+    <style>
+        /*重构弹窗*/
+        .alert_size .a_title .t_content{height: 100%; width: 100%; margin-top: 8px;}
+
+        /*<!-- 弹窗新样式开始-->*/
+        .alert_left{float: left; height: 100%; width: 75%;}
+        .alert_left .new_one_style{width: 42%;margin: 8px 0px 0px 18px;}
+        .alert_left .new_two_style{width: 42%;margin: -34px 0px 0px 240px;}
+
+        .user_inputs{width: 92%;margin: auto;margin-top: 7px;}
+        .alert_right{float: right; height: 100%; width: 20%;}
+        .alert_right .input_switch{margin-top: 10px;}
+        .seitch_title{font-size: 20px;}
+
+        .btn-primary{width: 90px;height: 50px;margin-top: 15px; margin-left: -6px;}
+        /*<!-- 弹窗新样式结束-->*/
+
+        .panel-heading a{float: right;margin-top: -18px; color: #fff; cursor: pointer;text-decoration: none;}
+
+        .search_input{height: 15%; width: 100%;}
+        .search_input .form-control{height: 60px;font-size: 24px;width: 45%;float: right;margin-top: 20px;}
+        .game_infos{height: 80%; width: 100%; border: 1px solid #ddd; margin-bottom: 10px; overflow: auto;}
+        .game_infos .table{width: 100%;text-align: center; margin: auto;}
+        .game_infos .table th{text-align: center;}
+
+        .table-head{width: 100%; height: 40px; background: #428bca;}
+        .table-head a{display: block; line-height: 40px; cursor: pointer; color: #000000;
+            float: left;text-align: center;font-weight: bold; font-size: 16px; text-decoration: none;}
+        .table-head a:hover{color: #ddd;}
+
+        /*限定每列元素的宽度*/
+        .column_10_percent{width: 10%;}
+        .column_20_percent{width: 20%;}
+        .column_9_percent{width: 9%;}
+        .column_7_percent{width: 7%;}
+        .column_10_percent a{margin-left: 10px; cursor: pointer;}
+        .style_left span{float:left;}
+
+
+
+        /*.right .r_message .r_content .panel .panel-efun .table-head .click_more{position: absolute}*/
+        /*.right .r_message .r_content .panel .panel-efun .table-head .click_more .show_more{width: 100px; height: 100px; border: 1px solid red; position: absolute; top: 0px; left: 0px;}*/
+
+    </style>
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{ name }}</h3>
+            <a class="glyphicon glyphicon-cog" id="ascription_add" title="添加"></a>
+        </div>
+        <div class="panel-body panel-efun">
+            <div class="search_input">
+                <input type="text" class="form-control" id="search" placeholder="请输入搜索关键字">
+            </div>
+            <div class="table-head">
+                <a class="column_9_percent">序号</a>
+                <a class="column_10_percent">运营中心</a>
+                <a class="column_20_percent">游戏名称</a>
+                <a class="column_9_percent">第一负责人</a>
+                <a class="column_9_percent">第二负责人</a>
+                <a class="column_9_percent">运营</a>
+                <a class="column_9_percent">原厂名称</a>
+                <a class="column_7_percent">自主运维</a>
+                <a class="column_7_percent">上线</a>
+                <a class="column_10_percent">操作</a>
+            </div>
+            <div class="game_infos">
+                <table class="table table-bordered table-hover">
+                    {% for line in datas %}
+                    <tr class="table_tr">
+                        <td class="column_9_percent"><span>{{ loop.index }}</span></td>
+                        <td class="column_10_percent"><span>{{ line.center_name | return_name }}</span></td>
+                        <td class="column_20_percent style_left"><span>{{ line.game_name | return_game_name}}</span></td>
+                        <td class="column_9_percent"><span>{{ line.game_one }}</span></td>
+                        <td class="column_9_percent"><span>{{ line.game_two }}</span></td>
+                        <td class="column_9_percent"><span>{{ line.game_operate }}</span></td>
+                        <td class="column_9_percent"><span>{{ line.game_factory }}</span></td>
+                        <td class="column_7_percent"><span>{{ line.game_autonomy | return_bol }}</span></td>
+                        <td class="column_7_percent"><span>{{ line.game_online | return_bol }}</span></td>
+                        <td class="column_10_percent">
+                            <a onclick="button_edit('{{ line.id }}')"><span class="glyphicon glyphicon-pencil">修改</span></a>
+                            <a onclick="button_del('{{ line.id }}')"><span class="glyphicon glyphicon-trash">删除</span></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{# jq #}
+{% block javascript %}
+<script>
+
+    //字符串截取
+    function cut_name(name){
+        return name.text().substring(0,2)
+    }
+
+    //bootstrip switch工具封装
+    function b_switch(name){
+        var s_id = '#' + name;
+        var input_class = '.' + name + '_input';
+        $(s_id).bootstrapSwitch();
+        $(s_id).on('switchChange.bootstrapSwitch', function(event, state){
+            if(state){
+                $(input_class).val(true)
+            }else{
+                $(input_class).val(false)
+            }
+        });
+    }
+
+
+    //删除功能点击按钮
+    function button_del(id){
+        if(window.confirm("确定要删除吗?")) {
+            add_and_change_button('del', '删除', id);
+        }
+    }
+
+    //修改功能点击按钮
+    function button_edit(id){
+        add_and_change_button('edit', '修改', id);
+    }
+
+    //添加功能的点击按钮
+    $('#ascription_add').click(function(){
+        add_and_change_button('create', '添加');
+    })
+
+
+
+    //添加修改综合按钮
+    function add_and_change_button(type, title, id=0){
+        if(type == 'create'){
+            var url = '/monitor/ascription/create'
+        }else if(type == 'edit'){
+            var url = '/monitor/ascription/edit?id=' + id;
+        }else if(type == 'del'){
+            var url = '/monitor/ascription/del?id=' + id;
+        }
+
+        $.get(
+                url,
+                function(data){
+                    if(data['code'] != 201){
+                        $('.t_content').html(data);
+                        $('.alert_size').show();
+                        $('.t_text').text(title);
+
+                        //开始处理弹窗后的动作
+                        //1 滑动按钮
+                        b_switch('r_autonmoy');
+                        b_switch('r_online');
+                        //2 input输入框自动匹配
+                        var ceneter_name = cut_name($('.l_business').find("option:selected"));
+                        $(".l_business").change(function(){
+                            var ceneter_name = cut_name($(this).find("option:selected"));
+                            get_center_name(ceneter_name);
+                        })
+                        get_center_name(ceneter_name);
+                    }else{
+                        location.reload();
+                    }
+
+                }
+        )
+    }
+
+
+
+
+    //通过select标签获取关键字。并做ajax获取信息
+    function get_center_name(name){
+        $.get(
+                '/monitor/hostgrou',
+                {'ceneter':name},
+                function(data){
+                    $('.l_ganmes').html(data);
+                }
+        )
+    }
+
+
+    //保存动作
+    function alert_button(action, id=0){
+        var action = $('.l_action').val();
+        var business = $('.l_business').val();
+        var ganmes = $('.l_ganmes').val();
+        var op_one = $('.l_op_one').val();
+        var op_two = $('.l_op_two').val();
+        var operate = $('.l_operate').val();
+        var factory = $('.l_factory').val();
+
+        var autonmoy = $('.r_autonmoy_input').val();
+        var online = $('.r_online_input').val();
+
+        //做判断输入框内容是否为空，如果为空则提醒
+        if(!operate){
+            alert('运营名称不能为空');
+            return;
+        }else if(!factory){
+            alert('原厂名称不能为空');
+            return;
+        }
+
+        //生成ajax回调的数据格式
+        var datas = {
+            'business':business, 'ganmes':ganmes,
+            'op_one':op_one, 'op_two':op_two,
+            'operate':operate, 'factory':factory,
+            'autonmoy':autonmoy, 'online':online,
+            'action':action
+        }
+        if (id != '0'){
+            datas.id = id;
+        }
+
+        //ajax通过post方式传递数据
+        $.post(
+                '/monitor/ascription/action.json',
+                datas,
+                function(data){
+                    if(data['code'] == 200){
+                        location.reload();
+                    }
+                }
+        )
+    }
+
+
+    //检索功能
+    $('#search').bind('input propertychange', function(){
+        var This_value = $(this).val();
+        $('.table_tr').each(function(){
+            var html_message = $(this).text().trim();
+            if( html_message.indexOf(This_value) != -1){
+                $(this).show()
+            }else{
+                $(this).hide()
+            }
+        })
+    })
+
+
+    //单机排序检索功能
+
+
+</script>
+
+
+
+{% endblock %}

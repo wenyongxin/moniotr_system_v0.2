@@ -1,0 +1,53 @@
+﻿/*{#  重构模板contet的样式 #}*/
+.right .r_content{margin-right:none;}
+/*{#  重构弹窗页面大小  #}*/
+.alert_size .a_title{width: 900px; height: 460px; margin-top: -230px; margin-left: -450px;}
+/*{#  重构input背景颜色 #}*/
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control{background-color:#fff;}
+
+/*{# 展示框头部样式 #}*/
+.right .r_content .c_message {width:100%; height: 100%; border:1px solid red;}
+.right .r_content .c_message .m_head {width:100%; height: 30px; background: #428bca;}
+.right .r_content .c_message .m_head .h_title {font-size: 18px; font-family: 微软雅黑; color: #fff; line-height: 30px; margin-left: 40px;}
+.h_glyphicon{margin-right: 5px;}
+
+/*{# 展示框内容样式 #}*/
+.right .r_content .panel-primary .panel-body {width:100%; background: #ffffff;}
+.right .r_content .panel-primary .panel-body .i_button{width: 96%;height: 15%;margin: auto; margin-bottom: 15px;}
+.right .r_content .panel-primary .panel-body .i_button .input-group{width: 80%; height: 60px; float: right; margin: 28px;}
+.right .r_content .panel-primary .panel-body .i_button .input-group .form-control{height: 60px; font-size: 24px;}
+.right .r_content .panel-primary .panel-body .i_button .input-group .dropdown-toggle{width: 160px;height: 60px;font-size: 20px;}
+.right .r_content .panel-primary .panel-body .i_button .input-group .show_list {font-size: 20px;cursor: pointer;background: #fff;width: 157px;position: fixed;margin-top: 60px;margin-left: -158px;display:none;}
+.right .r_content .panel-primary .panel-body .i_button .input-group .show_list div{margin-top: 10px; margin-left: 20px;}
+.right .r_content .panel-primary .panel-body .i_button .input-group .show_list div:hover{color:#2a6496;}
+
+
+.right .r_content .panel-primary .panel-body .i_message{border: 1px solid red; width: 96%;height: 80%;border: 1px solid #ddd;margin: auto; overflow-y:auto;}
+.right .r_content .panel-primary .panel-body .i_message h3{margin-left:10px; font-weight: bold;}
+.right .r_content .panel-primary .panel-body .i_message .h_button{float:right; cursor: pointer;font-weight: bold; margin-top: -17px; margin-right: 8px;}
+.right .r_content .panel-primary .panel-body .i_message .h_button .glyphicon{float:right;}
+.panel-primary{cursor: pointer;}
+
+.right .r_content .panel-primary .panel-body .i_message .m_line{border: 1px solid #ddd; height: 40px; margin-top: 10px; width: 100%；}
+.right .r_content .panel-primary .panel-body .i_message .m_line .l_number{width: 5%; line-height: 37px; text-align: center; float: left; font-weight: bold;}
+.right .r_content .panel-primary .panel-body .i_message .m_line .l_icon{float: left; line-height: 37px; width: 5%; text-align: center; margin-top: 8px;}
+.right .r_content .panel-primary .panel-body .i_message .m_line .l_name{float: left; line-height: 37px; width: 20%;font-family: 微软雅黑; font-weight: bold; margin-left: 22px;}
+.right .r_content .panel-primary .panel-body .i_message .m_line .l_name input {margin-top: 3px;}
+.right .r_content .panel-primary .panel-body .i_message .m_line .l_href{float: left; width: 40%; line-height: 20px;}
+.right .r_content .panel-primary .panel-body .i_message .m_line .l_href input {margin-top: 3px; margin-left: 10%;}
+.right .r_content .panel-primary .panel-body .i_message .m_line .l_button{float: right; line-height: 37px; margin-right: 30px; font-weight: bold; font-size: 15px; }
+
+/*{# 图片选择框样式 #}*/
+.manager_icon{width:365px; height:200px;border: 1px solid #ddd; display: none;position:absolute;z-index: 2;z-index: 7; background: #fff;margin-left: 95px;margin-top: -28px;}
+.manager_icon .i_page{float: right; margin-top: -2px; margin-right: 14px;font-size: 15px;cursor: pointer;}
+.manager_icon ul{margin-left: 10px;margin-top: 10px;}
+.manager_icon ul li{width: 30px;height: 30px; border: 1px solid #ddd;list-style:none;float:left; margin:2px;cursor:pointer;}
+.manager_icon ul li:hover{background: #428bca; color: #fff;}
+.close_icons{cursor:pointer; width: 20px;height: 20px;float: right;margin-right: -20px;background: #fff;border: 1px solid #ddd;margin-top: -1px;}
+.close_icons:hover{background: #ddd; color: #fff;}
+.close_icons div{ margin-top: -8px; margin-left: 2px;}
+.sesction_firame{border-right: 0;font-size: 25px;font-family: 微软雅黑;font-weight: bold;}
+
+
+
+

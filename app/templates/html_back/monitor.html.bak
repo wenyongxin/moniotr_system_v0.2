@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+
+	{% block title %}{{ datas['name'] }}{% endblock %}
+{% block head %}
+	<!--监控安装工具框-->
+	.monitor_install{width:100%;}
+	.monitor_install .m_content{box-shadow: 2px 3px 8px 0px; background:#fff; width:100%;}
+	.monitor_install .g_button{width:100%; height:30px; background:#428bca; margin-top:-1px; color:#fff; line-height:30px; cursor:pointer;}
+	.monitor_install .g_button .b_title{margin-left: 10px; font-weight: bold; line-height: 30px; user-select: none;}	
+	.monitor_install .g_button .b_icon{line-height:30px; float:right; margin-right:15px;}
+
+	.monitor_install .m_content .form_class{width:90%; margin:auto;}
+	.monitor_install .m_content .form_class #mode{display:none;}
+	.monitor_install .m_content .form_class .f_ipadd #login_ip{height:117px;resize: none; outline:none;}
+	#login_ip.false{border:1px solid #f00;}
+	#login_ip.true{border:1px solid #0c0;}
+	.monitor_install .m_content .form_class .col-top .span-text{font-size:12px; display:none;}
+	.monitor_install .m_content .form_class .col-top .false{color:#f00;}
+	.monitor_install .m_content .form_class .col-top .true{color:#0c0;}
+	.monitor_install .m_content .form_class .row .col-md-12 .col-top{margin-top:20px;}
+	.monitor_install .m_content .form_class .row .col-md-12 .col-top .f_btn{float:right; margin-bottom: 30px;}
+	.monitor_install .m_content .form_class .row .col-md-12 .div-list-port .input-list{position:absolute;top: 33px; right:15px; height:100px; border:1px solid #66AFE9;} 
+	<!--.monitor_install .m_content .form_class .row .col-md-12 .f-ssh-div .input-list{position:absolute;top: 0px; right: 15px;}-->
+	
+
+	.monitor_install .span{font-size:16px; font-weight: bold; user-select: none;} 
+	.monitor_install .span:hover{color:#000; cursor:pointer; }
+
+
+	<!--监控安装信息返回框-->
+	.install_message{width:100%;}
+        .install_message .m_content{box-shadow: 2px 3px 8px 0px; background:#fff; width:100%; height:350px;}
+        .install_message .g_button{width:100%; height:30px; background:#428bca; margin-top:50px; color:#fff; line-height:30px; cursor:pointer;}
+        .install_message .g_button .b_title{margin-left: 10px; font-weight: bold; line-height: 30px; user-select: none;}        
+        .install_message .g_button .b_icon{line-height:30px; float:right; margin-right:15px;}
+	.glyphicon-plus{cursor:pointer;}
+	.glyphicon-plus:hover{color:#428bca;}
+
+
+	::-webkit-scrollbar {width: 14px; height: 14px;}  
+	::-webkit-scrollbar-track,  
+	::-webkit-scrollbar-thumb {border-radius: 999px;border: 5px solid transparent;}  
+	::-webkit-scrollbar-track {box-shadow: 1px 1px 5px rgba(0,0,0,.2) inset;}  
+	::-webkit-scrollbar-thumb {min-height: 20px;background-clip: content-box; box-shadow: 0 0 0 5px rgba(0,0,0,.2) inset;}  
+	::-webkit-scrollbar-corner {background: transparent;}  
+
+	.install_message .m_content .c_left{float:left; width:50%; overflow-y:scroll; height:100%; position:relative;}
+	.install_message .m_content .c_right{float:right; width:50%; height:100%; position:relative;}
+	.install_message .m_content .c_left #c_plan{width:90%; height:90%; margin-top:20px; overflow-y:auto; margin:auto; margin-top:3%;}
+	.install_message .m_content .c_right #c_message{width:90%; height:90%; margin-top:20px; overflow-y:auto; margin:auto; margin-top:3%;}
+	.install_message .m_content .c_left #c_loading{position:absolute; top:50%; left:50%; margin-left:-58.5px; margin-top:-56px;}
+	.install_message .m_content .c_right #c_loading{position:absolute; top:50%; left:50%; margin-left:-58.5px; margin-top:-56px;}
+
+
+	<!--控制弹窗-->
+	
+	<!--.alert_size{position:relative;}
+	.alert_size .a_title{width:600px; height:300px; background:#fff; border-radius: 2%; border: 5px solid #428bca; position:absolute;top: 150px; left: 400px; z-index:5;modal: true,}-->
+	.alert_size{position:fixed; width:100%; height:100%; background:rgba(21, 21, 21,.5); top:0; left:0; z-index:5;}
+	.alert_size .a_title{width:600px; height:300px; background:#fff; border-radius: 2%; border: 5px solid #428bca; postion:fixed; left:50%; top:50%; margin-top:-150px; margin-left:-300px; box-shadow:3px 5px 33px 4px; }
+	.alert_size .a_title .t_title{background: #428bca; height: 50px; line-height: 50px;}
+	.alert_size .a_title .t_title span{color:#fff; font-size: 20px; margin-left:2px;}	
+	.alert_size .a_title .t_title .t_button{float: right; margin-right: 10px;cursor:pointer;}	
+	.alert_size .a_title .t_content{height: 70%; width: 90%; margin: auto; margin-top: 18px; font-size: 25px; overflow-y:auto;}
+	
+
+
+{% endblock %}
+
+
+{% block page_content %}
+	<link href="../static/bootstrap-3.3.0/css/bootstrap-switch.min.css" rel="stylesheet">
+	<script src="../static/bootstrap-3.3.0/js/bootstrap-switch.min.js"></script>
+
+	<!--弹窗演示-->
+	<div class="alert_size">
+		<div class="a_title">
+			<div class="t_title">
+				<span class="t_text"></span>
+				<span class="t_button">&times;</span>
+			</div>
+			<div class="t_content" id="t_content">
+			</div>
+		</div>
+
+	</div>
+
+	<!--监控安装工具框-->
+	<div class="monitor_install">
+		<div class="g_button">
+			<span class="b_title">监控添加</span>
+			<span class="glyphicon glyphicon-chevron-down b_icon"></span>
+		</div>
+	
+		<div class="m_content">
+			<form action="/monitor" method="POST" class="form_class">
+
+				<input type="input" id="mode" name="mode" value="false"></input>	
+				<div class="row">
+                        		<div class="col-md-12">
+						<div class="col-md-12 col-top">
+							<div class="input-group f_switch">
+								<input id="operation_mode" type="checkbox" data-on-text="自动" data-off-text="手动" />
+							</div>
+						</div>
+
+						<div class="col-md-12 col-top">
+							<div class="input-group input-group-lg f_ipadd">
+								<span class="input-group-addon span">IP地址</span>
+								<textarea type="text" id="login_ip" name="login_ip" placeholder="IP地址" class="form-control"></textarea>
+							</div>
+						</div>
+
+						<div class="col-md-3 col-top div-list-port f-ssh-div">
+							<div class="input-group f_ssh">
+								<span class="input-group-addon span">SSH端口号</span>
+								<input type="text" id="login_port2" name="login_port2" class="form-control" placeholder="请输入新端口号" style="display:none;" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"></input>
+								<select id="login_port" name="login_port" class="form-control">
+									{% for ssh in datas['sshs'] %}
+										<option value={{ ssh }}>{{ ssh }}</option>
+									{% endfor %}
+								</select>
+								<span class="input-group-addon"><span class="glyphicon glyphicon-plus show-ssh"></span></span>
+							</div>
+						</div>
+	
+						<div class="col-md-3 col-top f-ssh-div">
+							<div class="input-group f_pwd">
+								<span class="input-group-addon span">SSH密码</span>
+								<input type="text" id="login_pwd2" name="login_pwd2" class="form-control" placeholder="请输入新密码" style="display:none;"></input>
+								<select id="login_pwd" name="login_pwd" class="form-control">
+									{% for pwd in datas['pwds'] %}
+										<option value={{ pwd }}>{{ pwd }}</option>
+									{% endfor %}
+								</select>
+								<span class="input-group-addon"><span class="glyphicon glyphicon-plus show-pwd"></span></span>
+							</div>
+						</div>
+
+						<div class="col-md-3 col-top show-div">	
+							<div class="input-group f_proxy">
+								<span class="input-group-addon span">proxy地址</span>
+								<select id="conn_proxy" name="conn_proxy" class="form-control">
+									{% for proxy in datas['proxys'] %}
+										<option value={{ proxy.0 }}>{{ proxy.1 }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+
+						<div class="col-md-3 col-top show-div">	
+							<div class="input-group f_system">
+								<span class="input-group-addon span">系统列表</span>
+								<select id="install_system" name="install_system" class="form-control">	
+									{% for system in datas['systems'] %}
+										<option value={{ system.0 }}>{{ system.1 }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+
+
+	
+
+						<div class="col-md-12 col-top">
+							<div class="input-group f_btn">
+								<input type="submit" class="btn btn-danger" id="install_buton" disabled='disabled' onclick="return from_check()"></input>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!--监控安装信息返回框-->
+	<div class="install_message">
+	        <div class="g_button">
+                        <span class="b_title">安装结果</span>
+                        <span class="glyphicon glyphicon-chevron-down b_icon"></span>
+                </div>		
+		<div class="m_content">
+			<!--用于存放进度天-->
+			<div class="c_left">
+				<div id="c_plan"><image id="c_loading" src="/static/efun/images/loding.gif" /></div>
+			</div>
+
+			<!--用于function返回信息-->
+			<div class="c_right">
+				<div id="c_message"><image id="c_loading" src="/static/efun/images/loding.gif" /></div>
+			</div>
+		</div>
+	</div>
+
+
+
+{% endblock %}
+
+{% block javascript %}
+	<script type="text/javascript">
+
+		//监控添加框缩放按钮开关	
+		function show_connent(a, b, c){
+			a.click(function(){
+                       		if($(this).find('span').eq(1).hasClass('glyphicon-chevron-down')){
+					hide_button($(this), b)
+					if(c == 'install'){
+						change_result_height()
+					}
+                        	}else{
+					show_button($(this), b)
+					if(c == 'install'){
+						$('.install_message .m_content').css('height', '350px').fadeIn();
+					}
+                        	}
+	                });
+		}
+
+
+		//隐藏按钮
+		function hide_button(a, b){
+			a.find('span').eq(1).removeClass('glyphicon-chevron-down').addClass('glyphicon-chevron-up')
+			b.hide();
+		}
+
+
+		//显示按钮
+		function show_button(a, b){
+			a.find('span').eq(1).removeClass('glyphicon-chevron-up').addClass('glyphicon-chevron-down');
+			b.show();
+		}
+
+		//页面内容显示或隐藏功能启动
+		show_connent($('.monitor_install .g_button'), $('.monitor_install .m_content'), 'install')
+		
+		show_connent($('.install_message .g_button'), $('.install_message .m_content'), 'monitor')
+
+		
+		//自动与手动的选择器按钮
+      		$('#operation_mode').bootstrapSwitch();
+		$('#operation_mode').on('switchChange.bootstrapSwitch', function(event, state) {
+			$('#mode').val(state);
+			if(state){
+				$('.f-ssh-div').hide();
+				$('.col-md-3').removeClass('col-md-3').addClass('col-md-6');
+				$("#install_system option[value='w']").hide();
+			}else{
+				$('.f-ssh-div').show();
+				$('.col-md-6').removeClass('col-md-6').addClass('col-md-3');
+				$("#install_system option[value='w']").show();
+			}
+		});
+
+		//按照布尔值方式。返回1为正常。0为异常
+		//判断指定的id当前状态是否为隐藏，如果隐藏返回true，如果不隐藏，有值返回true，无值返回false
+		function input_status(input){
+			var s = $(input).css('display');
+			if (s == 'none'){
+				return 1;
+			}else{
+				var find_str = $(input).val();
+				if (find_str){
+					return 1;
+				}else{
+					return 0;
+				}
+			}
+		}
+
+
+
+                //用于检测win都是跳板机状态
+                var status_windows = eval('(' + {{ datas['cwp'] | tojson }} + ')');
+                if(status_windows){
+                        console.log('检测ok');
+                }else{
+                        $("#install_system option[value='w']").css('color','red');
+                }
+
+	
+		//from表单提交时做验证，验证port与pwd的输入框状态是否为1，如果为1则正常提交，否则就return提醒
+		function from_check(){
+			if (input_status('#login_port2') == 1 && input_status('#login_pwd2') == 1){
+				console.log(status_windows)
+			}else{
+				alert('ssh端口与密码不能为空请检查!')
+			}
+
+		}
+
+
+		//通过正则匹配IP是否合法
+		var ips = document.getElementById('login_ip');
+		ips.onkeyup = function(){
+			//var reg = /^((\d{1,3}\.)){3}\d{1,3}(,| ((\d{1,3}\.)){3}\d{1,3})*$/g; 
+			var reg = /^((\d{1,3}\.)){3}\d{1,3}(,| ((\d{1,3}\.)){3}\d{1,3})*$/g;
+			if(reg.test(this.value)){
+				console.log('true')
+				$('#install_buton').attr("disabled","disabled");
+			}else{
+				$(this).toggleClass('false')
+				$('#install_buton').removeAttr("disabled");
+			}
+		}
+	
+
+		//sjax通过post方式传递ip地址获取返回信息	
+		var ajax_ip = eval('(' + {{ datas['ips'] | tojson }} + ')');
+		var timer;
+
+		function post_ajax(){
+			$.ajax({
+				type: "POST",
+				context:document.body,
+				url : "monitor/message_info",
+				data : {{ datas['ips'] | tojson }}, 
+				success: function(msg){
+					console.log('ajax is running...')
+					var obj = eval('(' + msg + ')');
+					$('#c_plan').html(obj['plan']);
+					$('#c_plan #c_loading').hide();
+					$('#c_message').scrollTop( $('#c_message')[0].scrollHeight );
+					$('#c_message').html(obj['message']);
+					if(obj['check'].indexOf('td') >=0 ){
+						$('.t_text').text('监控检测完毕')
+						$('#t_content').html(obj['check']);
+						$('.alert_size').show()
+						console.log('ajax is stop...')
+						clearInterval(timer);			
+					}
+					if(obj['except']){
+						var html_str = "<table>";
+						var ips = obj['except'].split(',');
+						for(var i=0; i<ips.length; i++){
+							html_str += "<tr><td style=\"color:red\">"+ ips[i] +"</td></tr>"
+						}
+						html_str += "</table>"
+						$('.t_text').text('检测异常的IP')
+						$('#t_content').html(html_str);
+						$('.alert_size').show()
+					}
+				}
+			})
+		}
+
+	
+		if (ajax_ip['ips'].length > 0){
+			hide_button($('.monitor_install .g_button'), $('.monitor_install .m_content'));
+			change_result_height()
+			timer = setInterval(function(){
+				post_ajax()
+			},6000);
+		}else{
+			clearInterval(timer);
+			$('#c_plan #c_loading').hide();
+			$('#c_message #c_loading').hide();
+		}
+
+
+		//定义监控安装结果能够按照页面高度自动变化
+		
+		function change_result_height(){
+			var html_heit = $(window).height() - $('.install_message').offset().top - 100;
+			$('.install_message .m_content').css('height', html_heit + 'px').fadeIn();
+		}
+		$('.t_button').click(function(){
+			$('.alert_size').hide();
+		});
+		
+		//默认弹框为关闭状态
+		$('.alert_size').hide()
+
+
+		//安装界面点击加号按钮，将下拉列表变成input标签
+		function change_input(button, input, select){
+			$(button).click(function(){
+				var status = $(input).css('display');
+				if (status == 'none'){
+					$(input).show();
+					$(select).hide();
+				}else{
+					$(select).show();
+					$(input).hide();
+				}
+			});
+		}
+		
+		change_input('.show-ssh', '#login_port2', '#login_port');
+		change_input('.show-pwd', '#login_pwd2', '#login_pwd');
+
+
+	</script>
+{% endblock %}
+
+
+
+
+
+
+
+

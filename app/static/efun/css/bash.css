@@ -1,0 +1,82 @@
+﻿*{margin: 0; padding: 0;}
+
+body{position: relative;}
+/*左侧导航条*/
+.left{height: 100%; position:absolute;top: 0px; left: 0px;}
+.l_big{width: 245px;}
+.l_small{width: 77px;}
+
+.left .l_log{display:block; width:100%; height:112px ; margin-bottom: 5px; cursor: pointer;}
+
+/*新版导航栏-*/
+
+.l_big .l_title{width: 100%; height: 45px; background: #428bca; border-radius: 5%; cursor: pointer; margin-top: 5px;}
+.l_big .l_title .t_same{float: left; font-size: 20px; font-weight: bold; color: #fff; margin-top: 8px;}
+.l_big .l_title .t_left{margin-left: 17px; margin-top: 10px;}
+.l_big .l_title .t_center{margin-left: 10px; -webkit-user-select: none;}
+.l_big .l_title .t_right{float: right; margin-right: 20px; margin-top: 10px;}
+.l_big ul{margin-top: 5px; display: none; -webkit-user-select: none;}
+.l_big ul li{list-style: none; height: 30px; cursor: pointer; font-size: 16px; color:#428bca; font-family: "微软雅黑"; font-weight: bold;}
+.l_big ul li:hover{background: #ddd; font-size: 18px;}
+.l_big ul li .l_icon{float: left; margin-top: 2px; margin-left: 20px;}
+.l_big ul li .l_href{margin-left: 7px;text-decoration:none;}
+
+.l_big ul .li_active{background: #ddd; font-size: 16px;}
+
+
+.l_small .l_title{width: 77px; height: 45px; background: #428bca; border-radius: 5%; cursor: pointer; margin-top: 5px;}
+.l_small .l_title .t_same{float: left; font-size: 20px; font-weight: bold; color: #fff; margin-top: 8px;}
+.l_small .l_title .t_left{margin-left: 24px; margin-top: 10px;}
+.l_small .l_title .t_center{margin-left: 10px; display: none; -webkit-user-select: none;}
+.l_small .l_title .t_right{float: right; margin-right: 20px; margin-top: 10px; display: none;}
+.l_small ul{margin-top: 5px; display: none; -webkit-user-select: none;}
+.l_small ul li{list-style: none; height: 30px; cursor: pointer; font-size: 16px; color:#428bca; font-family: "微软雅黑"; font-weight: bold;}
+.l_small ul li:hover{background: #ddd; font-size: 18px;}
+.l_small ul li .l_icon{float: left; margin-top: 2px; margin-left: 25px;}
+.l_small ul li .l_href{margin-left: 48px; display: none;}
+
+.l_small ul .li_active{background: #ddd; font-size: 16px;}
+
+
+
+/*右侧内容*/
+.right{width: 1675px; height: 100%; background: #ddd; position:absolute;top: 0px; right: 0px;}
+
+.right .r_nav{width: 100%; height: 60px; background: #fff; box-shadow: 2px 3px 8px 0px; }
+.right .r_nav .r_btn{height: 100%; width: 200px; float:right; position: relative;}
+.right .r_nav .r_btn:hover{background: #ddd; cursor: pointer;}
+
+/*右上角用户与头像*/
+.right .r_nav .r_switch {display: block; font-size: 20px; float: left; margin-top: 22px;   margin-left: 15px; cursor: pointer;}
+.right .r_nav .r_btn .b_user{font-size: 15px; font-family: "微软雅黑"; margin-left: 9px; display: block; float: left; margin-top: 22px; margin-left:18px; font-weight: bold; -webkit-user-select: none;}
+.right .r_nav .r_btn .b_avatar{width:40px; height: 40px; border-radius: 50%; margin-top: 10px; margin-left: 15px; border: 2px solid #ddd;}
+
+/*用于控制下拉列表显示位置*/
+.right .r_nav .r_btn .b_list{width: 200px; float:right; margin-top: 0px;}
+.right .r_nav .r_btn .b_list li a span{margin-right: 5px;}
+
+
+/*内容 信息提醒*/
+.right .r_message{width: 100%; height: 20px; margin-top: 9px; font-size: 18px;}
+.r_message .dowebok { width: 90%; margin:auto; font-size: 13px; }
+.r_message .dowebok a { margin: 0 15px; color: #000; text-decoration: none;}
+.r_message .dowebok a:hover { text-decoration: underline;}
+.right .r_content{width:96%; height:820px; float:right; margin-top:10px; margin-right:2%;}
+
+
+::-webkit-scrollbar {width: 14px; height: 14px;}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-thumb {border-radius: 999px;border: 5px solid transparent;}
+::-webkit-scrollbar-track {box-shadow: 1px 1px 5px rgba(0,0,0,.2) inset;}
+::-webkit-scrollbar-thumb {min-height: 20px;background-clip: content-box; box-shadow: 0 0 0 5px rgba(0,0,0,.2) inset;}
+::-webkit-scrollbar-corner {background: transparent;}
+
+/* 告警弹窗样式 */
+.alert-style{cursor: pointer;width: 570px; text-align: center; color: #000; font-weight: bold; position: absolute; left: 50%; margin-left: -235px;top: 60px; z-index: 5;}
+
+.title_icon{margin-right:10px;}
+/*.right .r_message .r_content .panel .panel-body{height:780px;}*/
+.right .r_message .r_content .panel-primary .panel-efun{height:780px;}
+
+/* 弹窗loading条 */
+.logging{position: fixed; z-index: 4; width: 59%; height: 47.2%; display: none;}

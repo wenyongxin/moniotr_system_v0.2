@@ -1,0 +1,35 @@
+{% from "macros/macro_manager_user.html" import user_list_select,user_select,user_input,switch_button,user_null_select,password_input %}
+
+
+{% if edit_data %}
+    <div class="alert_left">
+        {{ password_input("","l_action", "", action, "hidden")}}
+        {{ user_select("业务中心", "l_business", centers, edit_data.center_name ) }}
+        {{ user_null_select("游戏名称", "l_ganmes") }}
+        {{ user_list_select("游戏一负", "l_op_one", efun_op, edit_data.game_one, "new_one_style") }}
+        {{ user_list_select("游戏二负", "l_op_two", efun_op, edit_data.game_two, "new_two_style") }}
+        {{ user_input("游戏运营", edit_data.game_operate, "l_operate")}}
+        {{ user_input("原厂名称", edit_data.game_factory, "l_factory")}}
+    </div>
+    <div class="alert_right">
+        {{ switch_button("是否自主", "r_autonmoy", edit_data.game_autonomy) }}
+        {{ switch_button("是否上线", "r_online", edit_data.game_online) }}
+        <input type="submit" class="btn btn-primary" value="{{ button_name }}" onclick="alert_button('{{ action }}', '{{ edit_data.id }}')"></input>
+    </div>
+{% else %}
+    <div class="alert_left">
+        {{ password_input("","l_action", "", action, "hidden")}}
+        {{ user_select("业务中心", "l_business", centers, 'create') }}
+        {{ user_null_select("游戏名称", "l_ganmes") }}
+        {{ user_list_select("游戏一负", "l_op_one", efun_op, 'create', "new_one_style") }}
+        {{ user_list_select("游戏二负", "l_op_two", efun_op, 'create', "new_two_style") }}
+        {{ user_input("游戏运营", "", "l_operate")}}
+        {{ user_input("原厂名称", "", "l_factory")}}
+    </div>
+    <div class="alert_right">
+        {{ switch_button("是否自主", "r_autonmoy") }}
+        {{ switch_button("是否上线", "r_online") }}
+        <input type="submit" class="btn btn-primary" value="{{ button_name }}" onclick="alert_button('{{ action }}')"></input>
+    </div>
+{% endif %}
+

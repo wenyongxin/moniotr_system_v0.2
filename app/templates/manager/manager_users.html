@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from "macros/macro_manager_user.html" import user_info %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{#样式#}
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='efun/css/manager_users.css') }}">
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+    <div class="row">
+        {% for rose in db_rose %}
+            {% for user in rose.users.all() %}
+                {{ user_info(avatar=user.avatar, username=user.username, department=user.department,
+                            telphon=user.telphone, email=user.email,nature='%s:%s'%(rose.name_cn,rose.describe),
+                            id = user.id, status=user.status) }}
+            {% endfor %}
+        {% endfor %}
+    </div>
+
+
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <input type="text" class="form-control search" placeholder="请输入搜索信息">
+                <form class="navbar-form navbar-right" methods="post">
+                    <div class="form-group">
+                        <div class="g_lines">
+                            <laber class="l_laber">姓名</laber>
+                            <input type="text"  id="username" class="form-control">
+                        </div>
+                        <div class="g_lines">
+                            <laber class="l_laber">部门</laber>
+                            <select class="form-control" id="department">
+                                {% for depart_id, depart_name in department.items() %}
+                                    <option value="{{ depart_id }}">{{ depart_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="g_lines g_permission">
+                            <laber class="l_laber">访问权限</laber>
+                            <select class="form-control" id="permission">
+                                {% for perm_id, perm_name in permission.items() %}
+                                    {% if perm_id != 1 %}
+                                        <option value="{{ perm_id }}">{{ perm_name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="g_lines">
+                            <button type="submit" id="create_user" class="btn btn-default">创建用户</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+{% endblock %}
+
+{# jq #}
+{% block javascript %}
+    {#上传头像jq#}
+    <script src="{{ url_for('static', filename='efun/js/update_image.js') }}"></script>
+    <script src="{{ url_for('static', filename='efun/js/manager_users.js') }}"></script>
+{% endblock %}

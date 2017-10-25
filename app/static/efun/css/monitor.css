@@ -1,0 +1,60 @@
+﻿.monitor_install{width:100%;}
+
+.monitor_install .m_content{box-shadow: 2px 3px 8px 0px; background:#fff; width:100%;}
+
+.monitor_install .g_button{width:100%; height:30px; background:#428bca; margin-top:-1px; color:#fff; line-height:30px; cursor:pointer;}
+
+.monitor_install .g_button .b_title{margin-left: 10px; font-weight: bold; line-height: 30px; user-select: none;}
+
+.monitor_install .g_button .b_icon{line-height:30px; float:right; margin-right:15px;}
+
+
+.monitor_install .m_content .form_class{width:90%; margin:auto;}
+
+.monitor_install .m_content .form_class #mode{display:none;}
+
+.monitor_install .m_content .form_class .f_ipadd #login_ip{height:117px;resize: none; outline:none;}
+
+#login_ip.false{border:1px solid #f00;}
+
+#login_ip.true{border:1px solid #0c0;}
+
+.monitor_install .m_content .form_class .col-top .span-text{font-size:12px; display:none;}
+
+.monitor_install .m_content .form_class .col-top .false{color:#f00;}
+
+.monitor_install .m_content .form_class .col-top .true{color:#0c0;}
+
+.monitor_install .m_content .form_class .row .col-md-12 .col-top{margin-top:20px;}
+
+.monitor_install .m_content .form_class .row .col-md-12 .col-top .f_btn{float:right; margin-bottom: 30px;}
+
+.monitor_install .m_content .form_class .row .col-md-12 .div-list-port .input-list{position:absolute;top: 33px; right:15px; height:100px; border:1px solid #66AFE9;}
+
+/*.span{display: block;}*/
+
+
+.monitor_install .span{font-size:16px; font-weight: bold; user-select: none;}
+
+.monitor_install .span:hover{color:#000; cursor:pointer; }
+
+
+/*监控安装信息返回框*/
+.install_message{width:100%;}
+.install_message .m_content{box-shadow: 2px 3px 8px 0px; background:#fff; width:100%; height:350px;}
+.install_message .g_button{width:100%; height:30px; background:#428bca; margin-top:50px; color:#fff; line-height:30px; cursor:pointer;}
+.install_message .g_button .b_title{margin-left: 10px; font-weight: bold; line-height: 30px; user-select: none;}
+.install_message .g_button .b_icon{line-height:30px; float:right; margin-right:15px;}
+.glyphicon-plus{cursor:pointer;}
+.glyphicon-plus:hover{color:#428bca;}
+
+.install_message .m_content .c_left{float:left; width:50%; overflow-y:scroll; height:100%; position:relative;}
+.install_message .m_content .c_right{float:right; width:50%; height:100%; position:relative;}
+
+.install_message .m_content .c_left #c_plan{width:90%; height:90%; margin-top:20px; overflow-y:auto; margin:auto; margin-top:3%;}
+
+.install_message .m_content .c_right #c_message{width:90%; height:90%; margin-top:20px; overflow-y:auto; margin:auto; margin-top:3%;}
+
+.install_message .m_content .c_left #c_loading{position:absolute; top:50%; left:50%; margin-left:-58.5px; margin-top:-56px;}
+
+.install_message .m_content .c_right #c_loading{position:absolute; top:50%; left:50%; margin-left:-58.5px; margin-top:-56px;}

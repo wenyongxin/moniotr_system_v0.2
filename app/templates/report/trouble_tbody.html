@@ -1,0 +1,153 @@
+{% for trouble in trouble_infos %}
+<tr id="{{ trouble.id }}" >
+	<td  width="180px" height='60px' name='trouble_date' style="text-align:center;vertical-align:middle;">{{ trouble.trouble_date }}</td>
+	<td  width="180px" name='operating_center' style="text-align:center;vertical-align:middle;">{{ trouble.operating_center }}</td>
+	<td  width="180px" name='business_module' style="text-align:center;vertical-align:middle;">{{ trouble.business_module }}</td>
+	<td  width="180px" name='trouble_affair' style="text-align:center;vertical-align:middle;">{{ trouble.trouble_affair }}</td>
+	<td  width="180px" name='affect_scope' style="text-align:center;vertical-align:middle;">{{ trouble.affect_scope }}</td>
+	<td  width="180px" name='isnot_inner' style="text-align:center;vertical-align:middle;">{{ trouble.isnot_inner }}</td>
+	<td  width="180px" name='affect_time' style="text-align:center;vertical-align:middle;">{{ trouble.affect_time }}</td>
+	<td  width="180px" name='isnot_experience' style="text-align:center;vertical-align:middle;">{{ trouble.isnot_experience }}</td>
+	<td  width="180px" name='affect_user' style="text-align:center;vertical-align:middle;">{{ trouble.affect_user }}</td>
+	<td  width="180px" name='affect_money' style="text-align:center;vertical-align:middle;">{{ trouble.affect_money }}</td>
+	<td  width="180px" name='data_source' style="text-align:center;vertical-align:middle;">{{ trouble.data_source }}</td>
+	<td  width="180px" name='isnot_core' class="isnot_core" times="{{ trouble.affect_time }}" style="text-align:center;vertical-align:middle;">{{ trouble.isnot_core }}</td>
+	<td  width="180px" name='trouble_type' style="text-align:center;vertical-align:middle;">{{ trouble.trouble_type }}</td>
+	<td  width="180px" name='heading_user' style="text-align:center;vertical-align:middle;">{{ trouble.heading_user }}</td>
+	<td  width="180px" name='trouble_attr' style="text-align:center;vertical-align:middle;">{{ trouble.trouble_attr }}</td>
+	<td  width="180px" name='trouble_status' style="text-align:center;vertical-align:middle;">{{ trouble.trouble_status }}</td>
+	<td  width="180px" name='trouble_cause' class="btn" style="text-align:center;vertical-align:middle;line-height:3;" title="故障原因" tabindex="0" role="button"  data-trigger="focus" data-container="body" data-toggle="popover" data-placement="left" data-content="<pre height='50px' style='background-color:transparent ;border: 0px solid;white-space: pre-wrap;word-wrap: break-word;'>{{ trouble.trouble_cause }}</pre>">{{ trouble.trouble_cause }}</a></td>
+	<td  width="180px" name='whith_process' class="btn" style="text-align:center;vertical-align:middle;line-height:3;" title="处理过程" tabindex="0" role="button"  data-trigger="focus" data-container="body" data-toggle="popover" data-placement="left" data-content="<pre height='50px' style='background-color:transparent ;border: 0px solid;white-space: pre-wrap;word-wrap: break-word;'>{{ trouble.whith_process }}</pre>">{{ trouble.whith_process }}</td>
+	{% if trouble.lesson_course %}
+		<td  width="180px"  name='lesson_course' class="btn" style="text-align:center;vertical-align:middle;line-height:3;" title="教训总结" tabindex="1" role="button"  data-trigger="focus" data-container="body" data-toggle="popover"  data-placement="left" data-content="<pre height='80px' style='background-color:transparent;border:0px solid;white-space: pre-wrap;word-wrap: break-word;'>{{ trouble.lesson_course }}</pre>">{{ trouble.lesson_course }}</td>
+	{% else %}
+		<td  width="180px" name='lesson_course' class="btn" style="border:1px;">{{ trouble.lesson_course }}</td>
+	{% endif%}
+
+	{% if trouble.improve %}
+		<td  width="180px"  name='improve'  class="btn" style="text-align:center;vertical-align:middle;line-height:3;" title="教训总结" tabindex="0" role="button"  data-trigger="focus"  data-container="body" data-toggle="popover"  data-placement="left" data-content="<pre height='50px' style='background-color:transparent;border:0px solid;white-space: pre-wrap;word-wrap: break-word;'>{{ trouble.improve }}</pre>">{{ trouble.improve }}</td>
+	{% else %}
+		<td  width="180px"  name='improve' class="btn" style="border:1px;">{{ trouble.improve }}</td>
+	{% endif%}
+</tr>
+
+
+{% endfor %}
+
+
+<script type="text/javascript">
+
+
+
+$(function ()
+	  { $("[data-toggle='popover']").popover({
+		html : true,
+	  });
+ });
+
+
+//双击编辑
+$("td").dblclick(function(){
+
+	var id = $(this).parent().attr("id");
+	if(id){
+		var trouble_date = $(this).parent().children("td[name='trouble_date']").html();
+		var operating_center = $(this).parent().children("td[name='operating_center']").html();
+		var business_module = $(this).parent().children("td[name='business_module']").html();
+		var trouble_affair = $(this).parent().children("td[name='trouble_affair']").html();
+		var affect_scope = $(this).parent().children("td[name='affect_scope']").html();
+		var isnot_inner = $(this).parent().children("td[name='isnot_inner']").html();
+		var affect_time = $(this).parent().children("td[name='affect_time']").html();
+		var isnot_experience = $(this).parent().children("td[name='isnot_experience']").html();
+		var affect_user = $(this).parent().children("td[name='affect_user']").html();
+		var affect_money = $(this).parent().children("td[name='affect_money']").html();
+		var data_source = $(this).parent().children("td[name='data_source']").html();
+		var isnot_core = $(this).parent().children("td[name='isnot_core']").html();
+		var trouble_type = $(this).parent().children("td[name='trouble_type']").html();
+		var heading_user = $(this).parent().children("td[name='heading_user']").html();
+		var trouble_attr = $(this).parent().children("td[name='trouble_attr']").html();
+		var trouble_status = $(this).parent().children("td[name='trouble_status']").html();
+		var trouble_cause = $(this).parent().children("td[name='trouble_cause']").html();
+		var whith_process = $(this).parent().children("td[name='whith_process']").html();
+		var lesson_course = $(this).parent().children("td[name='lesson_course']").html();
+		var improve = $(this).parent().children("td[name='improve']").children().html();
+
+		$("#add_trouble_time_1").val(trouble_date);
+		$("#operating-center-add").val(operating_center);
+		$("#business-module-add").val(business_module);
+		$("#trouble-affair-add").val(trouble_affair);
+		$("#affect-scope-add").val(affect_scope);
+		$("#isnot-inner-add").val(isnot_inner);
+		$("#affect-time-add").val(affect_time);
+		$("#isnot-experience-add").val(isnot_experience);
+		$("#affect-user-add").val(affect_user);
+		$("#affect-money-add").val(affect_money);
+		$("#data-source-add").val(data_source);
+		$("#isnot-core-add").val(isnot_core);
+		$("#trouble-type-add").val(trouble_type);
+		$("#heading-user-add").val(heading_user);
+		$("#trouble-attr-add").val(trouble_attr);
+		$("#trouble-status-add").val(trouble_status);
+		$("#trouble-cause-add").val(trouble_cause);
+		$("#whith-process-add").val(whith_process);
+		$("#lesson-course-add").val(lesson_course);
+		$("#improve-add").val(improve);
+
+
+		$("#sub-save").css("display","none");
+		$("#sub-del").css("display","");
+		$("#sub-plublish").css("display","none");
+		$("#sub-change").css("display","");
+		$("#sub-close-1").css("display","");
+		//跳出模态框
+		 $('#myModal-1').modal({ show: true, backdrop: 'static' });
+
+		//发布故障报告
+		$("#sub-change").click(function(){
+			var action='change_trouble';
+			var trouble_date = $("#add_trouble_time_1").val();
+			var operating_center = $("#operating-center-add").val();
+			var business_module = $("#business-module-add").val();
+			var trouble_affair = $("#trouble-affair-add").val();
+			var affect_scope = $("#affect-scope-add").val();
+			var isnot_inner = $("#isnot-inner-add").val();
+			var affect_time = $("#affect-time-add").val();
+			var isnot_experience = $("#isnot-experience-add").val();
+			var affect_user = $("#affect-user-add").val();
+			var affect_money = $("#affect-money-add").val();
+			var data_source = $("#data-source-add").val();
+			var isnot_core = $("#isnot-core-add").val();
+			var trouble_type = $("#trouble-type-add").val();
+			var heading_user = $("#heading-user-add").val();
+			var trouble_attr = $("#trouble-attr-add").val();
+			var trouble_status = $("#trouble-status-add").val();
+			var trouble_cause = $("#trouble-cause-add").val();
+			var whith_process = $("#whith-process-add").val();
+			var lesson_course = $("#lesson-course-add").val();
+			var improve = $("#improve-add").val();
+
+			$.post('/troubleadd/',{'action':action,'id':id,'trouble_date':trouble_date,'operating_center':operating_center,'business_module':business_module,'trouble_affair':trouble_affair,
+								'affect_scope':affect_scope,'isnot_inner':isnot_inner,'affect_time':affect_time,'isnot_experience':isnot_experience,'affect_user':affect_user,
+								'affect_money':affect_money,'data_source':data_source,'isnot_core':isnot_core,'trouble_type':trouble_type,'heading_user':heading_user,
+								'trouble_attr':trouble_attr,'trouble_status':trouble_status,'trouble_cause':trouble_cause,'whith_process':whith_process,'lesson_course':lesson_course,'improve':improve},function(data){
+						alert(data);
+						$('#myModal-1').modal('hide');
+						location.reload();
+				});
+		});
+
+		//删除故障报告
+		$("#sub-del").click(function(){
+			var action='del_trouble';
+			$.post('/troubleadd/',{'action':action,'id':id},function(data){
+					alert(data);
+					$('#myModal-1').modal('hide');
+					location.reload();
+			   });
+		});
+	}
+});
+
+
+ </script>
+

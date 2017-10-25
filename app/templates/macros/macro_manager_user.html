@@ -1,0 +1,218 @@
+{% macro user_info(avatar, username, department, telphon, email, nature, id , status) %}
+<div class="col-md-4 show_user">
+    <div class="s_left" onclick="edit_infomation({{ id }})">
+        <div class="s_avatar">
+            <img src="../static/users/images/{{ avatar }}" alt="{{ username }}">
+        </div>
+        <div class="s_username">{{ username }}</div>
+        {% if status %}
+        <div class="s_disabled">已禁用</div>
+        {% else %}
+        <div class="s_department">{{ department }}</div>
+        {% endif %}
+    </div>
+    <div class="s_right" onclick="edit_infomation({{ id }})">
+        <div class="r_message">
+            <span class="title_span">手机号：</span>
+            <div class="r_telphon nature">
+                <span class="n_message">{{ telphon }}</span>
+            </div>
+            <span class="title_span">邮箱：</span>
+            <div class="r_email nature">
+                <span class="n_message">{{ email }}</span>
+            </div>
+            <span class="title_span">权限：</span>
+            <div class="r_nature nature">
+                <span class="n_message">{{ nature }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="s_button" onclick="del_infomation({{ id }})">
+        <a class="button_icon b_delete" title="删除用户" style="background: url('../../static/icon/trashcan.png')"></a>
+    </div>
+</div>
+{% endmacro %}
+
+{# input框 #}
+{% macro user_input(name, value, class, type="text") %}
+    <div class="input-group user_inputs">
+        <div class="input-group-addon">{{ name }}</div>
+        {% if type == 'password' %}
+            <input type="{{ type }}" class="form-control {{ class }}" value="{{ value }}" disabled="true">
+            <span class="input-group-btn">
+                <button class="btn btn-default" onclick="edit_password()" type="button">修改密码</button>
+            </span>
+        {% elif type == 'textarea' %}
+            <textarea type="{{ type }}" class="form-control {{ class }}">{{ value }}</textarea>
+        {% elif type == 'pass' %}
+            <input type="password" class="form-control {{ class }}" value="{{ value }}">
+        {% else %}
+            <input type="{{ type }}" class="form-control {{ class }}" value="{{ value }}">
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{% macro switch_button(name, id, status=False) %}
+    <div class="input_switch">
+        <span class="seitch_title">{{ name }}</span>
+        <div class="input-group">
+            {% if status %}
+                <input id="{{ id }}" class="operation_mode" type="checkbox" checked="checked" data-on-text="是" data-off-text="否" />
+                <input type="hidden" class="{{ id }}_input" value="true">
+            {% else %}
+                <input id="{{ id }}" class="operation_mode" type="checkbox" data-on-text="是" data-off-text="否" />
+                <input type="hidden" class="{{ id }}_input" value="false">
+            {% endif %}
+
+        </div>
+    </div>
+{% endmacro %}
+
+
+
+{# input框 #}
+{% macro password_input(name, class, id, value, type='password') %}
+    <input type="{{ type }}" class="form-control {{ class }}" id="{{ id }}" value="{{ value }}" placeholder="{{ name }}">
+{% endmacro %}
+
+
+
+
+
+
+{# select框 传入字典格式 #}
+{% macro user_select(name, class, data, match) %}
+<div class="input-group user_inputs">
+    <div class="input-group-addon">{{ name }}</div>
+    <select  class="form-control {{ class }}">
+        {% for val_id, val_value in data.items() %}
+            {% if match == val_id or match == val_value%}
+                <option selected="selected" value={{ val_id }}>{{ val_value }}</option>
+            {% else %}
+                <option value={{ val_id }}>{{ val_value }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+</div>
+{% endmacro %}
+
+{# 传入列表格式#}
+{% macro user_list_select(name, class, data, match, style_3) %}
+<div class="input-group user_inputs {{ style_3 }}">
+    <div class="input-group-addon">{{ name }}</div>
+    <select  class="form-control {{ class }}">
+        {% for val in data %}
+            {% if match == val %}
+                <option selected="selected" value={{ val }}>{{ val }}</option>
+            {% else %}
+                <option value={{ val }}>{{ val }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+</div>
+{% endmacro %}
+
+{# 空的下拉列表 #}
+{% macro user_null_select(name, class) %}
+<div class="input-group user_inputs {{ style_3 }}">
+    <div class="input-group-addon">{{ name }}</div>
+    <select  class="form-control {{ class }}">
+    </select>
+</div>
+{% endmacro %}
+
+
+
+{% macro business_alert_list(new_datas=new_datas) %}
+    {% for application_name, items in new_datas.items() %}
+        {% if application_name != 'checked_items' %}
+        <div class="c_title" onclick="show_list({{ loop.index }})">
+            <div class="alert_title">{{ loop.index }} {{ application_name }}</div>
+            <div class="t_icon t_icon_{{ loop.index }}">
+                <span class="glyphicon glyphicon-pushpin waiting"></span>
+            </div>
+        </div>
+
+        {% set sec_id = loop.index %}
+        <div class="l_select" id="l_select_{{ loop.index }}">
+            {% for item in items %}
+            <div class="l_list">
+                {% if item['type'] == True %}
+                <input type="checkbox" name="items_checkbox" class="checkbox_{{ sec_id }}_{{ loop.index }}" value="{{item['itemid']}}" checked="checked">
+                {% else %}
+                <input type="checkbox" name="items_checkbox" class="checkbox_{{ sec_id }}_{{ loop.index }}" value="{{item['itemid']}}">
+                {% endif %}
+                <a class="l_font" title="{{item['name']}}" onclick="click_class('checkbox_{{ sec_id }}_{{ loop.index }}')">{{ item['name']}}</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+
+
+{% macro business_table(title, tables_id, line_num, num ) %}
+    <span>{{ title | e }}</span>
+    <table class="table table-bordered table-condensed table-hover" id="{{ tables_id }}_{{ line_num }}_{{ num }}">
+    </table>
+{% endmacro %}
+
+
+<!--监控展示使用的table-->
+{% macro monitor_table(web_infos) %}
+    <table class="table table-bordered table-hover">
+        {% for line in web_infos %}
+           {% if line.priority == '0' %}
+                <tr style="background: #dbdbdb;">
+            {% elif line.priority == '1' %}
+                <tr style="background: #d6f6ff;">
+            {% elif line.priority == '2' %}
+                <tr style="background: #fff6a5;">
+            {% elif line.priority == '3' %}
+                <tr style="background: #ffb689;">
+            {% elif line.priority == '4' %}
+                <tr style="background: #ff9999;">
+            {% elif line.priority == '5' %}
+                <tr style="background: #ff3838;">
+            {% endif %}
+
+            {% if line['triggerid'] | is_close_message %}
+                <td class="table_2_p">
+                    <a class="glyphicon glyphicon-ban-circle" title="{{ line['triggerid'] | is_close_message }}"></a>
+                </td>
+            {% else %}
+                <td class="table_2_p">
+                    <input type="checkbox" class="problem_checkbox" id="{{ line['triggerid']}}">
+                </td>
+            {% endif %}
+            <td class="table_35_p" onclick="alert_hosts({{ loop.index }}, {{ line['hosts'][0]['hostid'] }})">{{ line['hosts'][0]['name'] }}</td>
+            <td class="table_4_p">
+                <!-- 通过返回的字符串类型判断使用的标签按钮-->
+                {% if line['items'][0]['prevvalue'] | is_string %}
+                    <span class="glyphicon glyphicon-th-list zabbix_icon" onclick="button_values({{ loop.index }},{{ line['items'] | itemids_to_list }})"></span>
+                {% else %}
+                    <span class="glyphicon glyphicon-th-large zabbix_icon" onclick="button_graph({{ loop.index }},{{ line['items'] | itemids_to_list }})"></span>
+                {% endif %}
+            </td>
+            <td class="table_40_p">{{ line['description'] }}</td>
+            <td class="table_4_p"><span class="glyphicon glyphicon-play zabbix_icon" style="color: green;"></span></td>
+            <td class="table_8_p">{{ line['groups'] | return_ascription }}</td>
+            <td class="table_7_p">{{ line['lastchange'] | problem_long_time}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endmacro %}
+
+
+<!--等待条目-->
+{% macro loging() %}
+    <div class="main">
+        <div class="loadEffect">
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+            <div><span></span></div>
+        </div>
+    </div>
+{% endmacro %}

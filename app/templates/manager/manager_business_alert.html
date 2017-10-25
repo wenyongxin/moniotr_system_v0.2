@@ -1,0 +1,34 @@
+{% from "macros/macro_manager_user.html" import user_input,user_select,password_input,business_alert_list %}
+
+<div class="alert_info">
+    <div class="alert_left">
+        <div class="l_input">
+            <input type="text" class="form-control" id="search_ip" placeholder="IP地址" {% if ipaddress %} value="{{ ipaddress }}" {% else %} value="" {% endif %}>
+            <button class="btn btn-primary" type="button" onclick="search_ip()">查找</button>
+        </div>`
+        <div class="l_checkboes">
+            {% if new_datas %}
+                {{ business_alert_list(new_datas=new_datas) }}
+            {% else %}
+                <div id="loading"></div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="alert_right">
+        {% if db_items %}
+            {{ password_input(name='类型', value=button_type, class='action_type', type='hidden') }}
+            {{ user_input(name="名称", value=db_items.name, class="r_name") }}
+            {{ user_input(name="描述", value=db_items.describe, class="r_describe", type="textarea") }}
+            {{ user_select(name="排序", class="r_sort", data=sort, match=db_items.sort) }}
+            {{ user_select(name="隶属", class="r_sections", data=sections,match=db_items.sections.id) }}
+            <button type="button" class="btn btn-primary user_button" onclick="business_button('{{ button_type }}','{{ db_items.id }}')">{{ button_name }}</button>
+        {% else %}
+            {{ password_input(name='类型', value=button_type, class='action_type', type='hidden') }}
+            {{ user_input(name="名称", value='', class="r_name") }}
+            {{ user_input(name="描述", value='', class="r_describe", type="textarea") }}
+            {{ user_select(name="排序", class="r_sort", data=sort,match='0') }}
+            {{ user_select(name="隶属", class="r_sections", data=sections,match='a') }}
+            <button type="button" class="btn btn-primary user_button" onclick="business_button('{{ button_type }}','0')">{{ button_name }}</button>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,86 @@
+<div class="alert_infs">
+    <form class="sesction_form" action="{{ url_for('auth.edit_url') }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        {% if info %}
+            <input type="hidden" id="sesction_id" name="sesction_id" value="{{ info.id }}">
+        {% else %}
+            <input type="hidden" id="sesction_id" name="sesction_id">
+        {% endif %}
+        <div class="input-group" style="margin-top: 10px;">
+            <span class="input-group-addon">名字</span>
+            {% if info %}
+                <input type="text" class="form-control" name="sesction_name" value="{{ info.name }}">
+            {% else %}
+                <input type="text" class="form-control" name="sesction_name">
+            {% endif %}
+        </div>
+
+        <div class="input-group" style="margin-top: 10px;">
+            {% if not info.head %}
+                <span class="input-group-addon">路径</span>
+            {% else %}
+                <span class="input-group-addon">显示顺序</span>
+            {% endif %}
+            {% if info %}
+                <input type="text" class="form-control" name="sesction_href" value="{{ info.href }}">
+            {% else %}
+                <input type="text" class="form-control" name="sesction_href">
+            {% endif %}
+        </div>
+
+        {% if not info.head %}
+            <div class="input-group" style="margin-top: 10px;">
+                <span class="input-group-addon">隶属</span>
+                <select class="form-control heads_list" name="section_head">
+                    {% for h in heads %}
+                        {% if h.id == info.membership %}
+                            <option selected="selected" value={{ h.id }}>{{ h.name }}</option>
+                        {% else %}
+                            <option value={{ h.id }}>{{ h.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
+
+
+        <div class="input-group" style="margin-top: 10px;">
+            <span class="input-group-addon">图标</span>
+            <button type="button" class="btn btn-default icon_button" onclick="show_icon(1)">
+                {% if info %}
+                    <span class="glyphicon {{ info.icon.icon_name }}"></span>
+                    <input type="hidden" name="section_icon" value="{{ info.icon.icon_name }}">
+                {% else %}
+                    <span class="glyphicon glyphicon-question-sign"></span>
+                    <input type="hidden" name="section_icon" value="glyphicon-question-sign">
+                {% endif %}
+            </button>
+        </div>
+        <div class="manager_icon"></div>
+
+        {% if not info.head %}
+            <div class="input-group" style="margin-top: 10px;">
+                <span class="input-group-addon" id="basic-addon1">描述</span>
+                {% if info %}
+                    <input type="text" class="form-control" value="{{ info.describe }}" name="section_describe" style="height: 75px;">
+                {% else %}
+                    <input type="text" class="form-control" name="section_describe" style="height: 75px;">
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary btn-lg btn-block" onclick="sender_all()" style="float: right; margin-top: 10px;">提交</button>
+
+        {% if info.head %}
+            <div class="show_urls">
+                <table class="table">
+                    <tr><th>排列序号</th><th>名称</th></tr>
+                    {% for i in  heads%}
+                        <tr><td>{{ i.href }}</td><td>{{ i.name }}</td></tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% endif %}
+
+    </form>
+</div>

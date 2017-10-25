@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+
+{% block page_content %}
+	<link href="../../static/efun/css/monitor.css" rel="stylesheet">
+	<link href="../../static/bootstrap-3.3.0/css/bootstrap-switch.min.css" rel="stylesheet">
+	<script src="../../static/bootstrap-3.3.0/js/bootstrap-switch.min.js"></script>
+
+	<!--监控安装工具框-->
+	<div class="monitor_install">
+		<div class="g_button">
+			<span class="b_title">监控添加</span>
+			<span class="glyphicon glyphicon-chevron-down b_icon"></span>
+		</div>
+	
+		<div class="m_content">
+			<form action="/monitor" method="POST" class="form_class">
+
+				<input type="input" id="mode" name="mode" value="false"></input>	
+				<div class="row">
+                        <div class="col-md-12">
+						<div class="col-md-12 col-top">
+							<div class="input-group f_switch">
+								<input id="operation_mode" type="checkbox" data-on-text="自动" data-off-text="手动" />
+							</div>
+						</div>
+
+						<div class="col-md-12 col-top">
+							<div class="input-group input-group-lg f_ipadd">
+								<span class="input-group-addon span">IP地址</span>
+								<textarea type="text" id="login_ip" name="login_ip" placeholder="IP地址" class="form-control"
+                                        onkeyup="this.value=this.value.replace(/\D|.| /g,'')" onafterpaste="this.value=this.value.replace(/\D|.| /g,'')"
+                                        ></textarea>
+							</div>
+						</div>
+
+						<div class="col-md-3 col-top div-list-port f-ssh-div">
+							<div class="input-group f_ssh">
+								<span class="input-group-addon span">SSH端口号</span>
+								<input type="text" id="login_port2" name="login_port2" class="form-control" placeholder="请输入新端口号" style="display:none;" onkeyup="this.value=this.value.replace(/\D/g,'')" onafterpaste="this.value=this.value.replace(/\D/g,'')"></input>
+								<select id="login_port" name="login_port" class="form-control">
+									{% for ssh in sshs %}
+										<option value={{ ssh }}>{{ ssh }}</option>
+									{% endfor %}
+								</select>
+								<span class="input-group-addon"><span class="glyphicon glyphicon-plus show-ssh"></span></span>
+							</div>
+						</div>
+	
+						<div class="col-md-3 col-top f-ssh-div">
+							<div class="input-group f_pwd">
+								<span class="input-group-addon span">SSH密码</span>
+								<input type="text" id="login_pwd2" name="login_pwd2" class="form-control" placeholder="请输入新密码" style="display:none;"></input>
+								<select id="login_pwd" name="login_pwd" class="form-control">
+									{% for pwd in pwds %}
+										<option value={{ pwd }}>{{ pwd }}</option>
+									{% endfor %}
+								</select>
+								<span class="input-group-addon"><span class="glyphicon glyphicon-plus show-pwd"></span></span>
+							</div>
+						</div>
+
+						<div class="col-md-3 col-top show-div">	
+							<div class="input-group f_proxy">
+								<span class="input-group-addon span">proxy地址</span>
+								<select id="conn_proxy" name="conn_proxy" class="form-control">
+									{% for proxy in proxys %}
+										<option value={{ proxy.0 }}>{{ proxy.1 }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+
+						<div class="col-md-3 col-top show-div">	
+							<div class="input-group f_system">
+								<span class="input-group-addon span">系统列表</span>
+								<select id="install_system" name="install_system" class="form-control">	
+									{% for system in systems %}
+										<option value={{ system.0 }}>{{ system.1 }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+
+
+	
+
+						<div class="col-md-12 col-top">
+							<div class="input-group f_btn">
+								<input type="submit" class="btn btn-danger" id="install_buton" disabled='disabled' onclick="return from_check()"></input>
+							</div>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!--监控安装信息返回框-->
+	<div class="install_message">
+	        <div class="g_button">
+                        <span class="b_title">安装结果</span>
+                        <span class="glyphicon glyphicon-chevron-down b_icon"></span>
+                </div>		
+		<div class="m_content">
+			<!--用于存放进度天-->
+			<div class="c_left">
+				<div id="c_plan"><image id="c_loading" src="/static/efun/images/loding.gif" /></div>
+			</div>
+
+			<!--用于function返回信息-->
+			<div class="c_right">
+				<div id="c_message"><image id="c_loading" src="/static/efun/images/loding.gif" /></div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+
+{% block javascript %}
+	<script src="../../static/efun/js/down_up.js"></script>
+	<script src="../../static/efun/js/monitor.js"></script>
+	<script type="text/javascript">
+        //页面内容显示或隐藏功能启动
+        show_connent($('.monitor_install .g_button'), $('.monitor_install .m_content'), 'install')
+        show_connent($('.install_message .g_button'), $('.install_message .m_content'), 'monitor')
+
+
+		//用于检测win都是跳板机状态
+		var status_windows = eval('(' + {{ cwp | tojson }} + ')');
+		if(status_windows){
+			console.log('检测windows跳板机ok');
+		}else{
+			$("#install_system option[value='w']").css('color','red');
+		}
+
+		//sjax通过post方式传递ip地址获取返回信息
+		var ajax_ip = eval('(' + {{ ips | tojson }} + ')');
+		var timer;
+
+		function post_ajax(){
+	        $.ajax({
+        	        type: "POST",
+                	context:document.body,
+	                url : "monitor/message_info",
+        	        data : {{ ips | tojson }},
+                	success: function(msg){
+                        	console.log('ajax is running...')
+	                        var obj = eval('(' + msg + ')');
+        	                $('#c_plan').html(obj['plan']);
+                	        $('#c_plan #c_loading').hide();
+                        	$('#c_message').scrollTop( $('#c_message')[0].scrollHeight );
+	                        $('#c_message').html(obj['message']);
+                            /*做snmp与zabbix检测*/
+                            console.log(obj['check'])
+        	                if(obj['check'].indexOf('tr') >=0 ){
+                	                $('.t_text').text('监控检测完毕')
+                        	        $('#t_content').html(obj['check']);
+                                	$('.alert_size').show()
+	                                console.log('ajax is stop...')
+        	                        clearInterval(timer);
+                	        }
+                            /*判断是否包含异常IP的*/
+                        	if(obj['except']){
+	                                var html_str = "<table>";
+        	                        var ips = obj['except'].split(',');
+                	                for(var i=0; i<ips.length; i++){
+                        	                html_str += "<tr><td style=\"color:red\">"+ ips[i] +"</td></tr>"
+	                                }
+        	                        html_str += "</table>"
+                	                $('.t_text').text('检测异常的IP')
+                        	        $('#t_content').html(html_str);
+                                	$('.alert_size').show()
+	                        }
+        	        }
+	        })
+	}
+
+
+	if (ajax_ip['ips'].length > 0){
+        	hide_button($('.monitor_install .g_button'), $('.monitor_install .m_content'));
+	        change_result_height()
+        	timer = setInterval(function(){post_ajax()},6000);
+	}else{
+        	clearInterval(timer);
+	        $('#c_plan #c_loading').hide();
+        	$('#c_message #c_loading').hide();
+	}
+
+
+	//定义监控安装结果能够按照页面高度自动变化
+	function change_result_height(){
+        	var html_heit = $(window).height() - $('.install_message').offset().top - 100;
+	        $('.install_message .m_content').css('height', html_heit + 'px').fadeIn();
+	}
+	</script>
+{% endblock %}
+
+
+
+
+
+
+
+

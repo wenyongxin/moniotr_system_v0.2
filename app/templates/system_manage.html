@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}系统管理{% endblock %}
+
+{#样式#}
+{% block style %}
+
+
+<link rel="stylesheet" href="/static/report/font-awesome/css/font-awesome.min.css"/>
+<link rel="stylesheet" href="/static/report/css/select2.min.css">
+<link rel="stylesheet" href="/static/report/css/style.css" />
+<link rel="stylesheet" href="/static/report/jquery-ui/jquery-ui.css">
+<script src="/static/report/jquery-ui/jquery-ui.js"></script>
+<link rel="stylesheet" href="/static/report/css/jquery-ui-timepicker-addon.css" />
+<script src="/static/report/js/jquery-ui-timepicker-addon.js"></script>
+
+<style>
+
+.right{width: 1690px; height: 100%; background: #ddd; position:absolute;top: 0px; right: 0px;overflow-y:scroll}
+.right .r_content{width:98.5%; height: 82%; float:right; position: absolute; margin-top:10px;}
+
+</style>
+
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+
+	<div class="row">
+		<div class="col-xs-12" style="padding-left: 60px;padding-right: 15px;">
+
+			<div class="table-header" style="background-color:#357EBD;height: 45px;padding-right: 20px;overflow: hidden;">
+				<div style="width: 25%;float: left;font-size: 20px;	">系统管理</div>
+
+				<div class="pull-right" style="padding-top:5px;">
+					<button class="btn btn-success" data-toggle="modal" data-target="#maintenance-add" id="add-maintenance">添加记录</button>
+				</div>
+
+			</div>
+
+			<div style="margin-top:-3px;overflow-y:auto; zoom:0.8;margin-top:15px;height:98%;">
+
+				<div class="col-sm-2">
+					999
+				</div>
+				<div class="col-sm-10">
+					0000
+				</div>
+			</div>
+
+		</div>
+	</div>
+{% endblock %}

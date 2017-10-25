@@ -1,0 +1,17 @@
+﻿*{margin: 0px; padding: 0px;}
+body{width:100%; height: 100%; background-color:#ddd}
+.login_div{width:860px; height:450px; position:fixed; left:50%; top:50%; margin-top:-225px;margin-left:-430px;background: #428bca; border-radius: 2%; box-shadow: 0px 3px 25px 1px;}
+.left_log{width: 387px; height: 100%; float: left; position: relative}
+.left_log img{position: absolute; top: 50%; left: 50%; margin-left: -160px; margin-top: -77px;}
+.rigt_div{width: 473px; height: 100%; float: right;position: relative}
+.rigt_div .r_backgroup{width: 445px; height: 393px; background: #ffffff; border-radius: 2%; position: absolute; top: 50%; right: 6%; margin-top: -196.5px;}
+.rigt_div .r_backgroup .r_font{font-size: 36px; font-family: "微软雅黑";text-align:center; margin-top: 35px;}
+.rigt_div .r_backgroup .form-inline{text-align: center;}
+.rigt_div .r_backgroup .form-inline .input-group{margin-top: 15px; width: 80%;}
+.input_height{height: 40px;}
+.check_right{text-align: right;}
+.button_right{width: 80%;}
+.captcha-img{cursor: pointer; width: 100%; height: 100%;}
+.error_message{color:red; margin-top: 15px;}
+.input-captcha{padding: 1px 0px;}
+.form-inline .input-group .login_icon{width:60px;}

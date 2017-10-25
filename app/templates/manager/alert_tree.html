@@ -1,0 +1,38 @@
+<script src="{{ url_for('static', filename='dtree/js/dtree.js') }}"></script>
+<link href="{{ url_for('static', filename='dtree/css/dtree.css') }}" rel="stylesheet">
+
+<div class="c_left" id="c_left">
+    <script type="text/javascript">
+        d = new dTree('d');
+        d.add(0,-1,'权限管理');
+        {% for section in all_result %}
+            {{ section.name }}
+            d.add({{ section['section'][0].id }}, 0, 'authority', '{{ section['section'][0].id }}', "{{ section['section'][0].name }}", {{ section['section'][1] }});
+            {% for url in section['urls'] %}
+                d.add({{ url[0].id }}, {{ section['section'][0].id }}, 'authority', {{ url[0].id }}, "{{ url[0].name }}", {{ url[1] }});
+            {% endfor %}
+        {% endfor %}
+        document.getElementById("c_left").innerHTML = d;
+        d.closeAll();
+    </script>
+</div>
+
+
+<div class="c_right">
+    {% if permission %}
+        <input type="hidden" id="action" value="{{ permission.id }}">
+        <span>姓名</span>
+        <input class="form-control" id="name" type="text" value="{{ permission.name }}">
+        <span>描述</span>
+        <input  class="form-control" id="desc" type="text" value="{{ permission.describe }}">
+    {% else %}
+        <input type="hidden" id="action">
+        <span>姓名</span>
+        <input class="form-control" id="name" type="text">
+        <span>描述</span>
+        <input  class="form-control" id="desc" type="text">
+    {% endif %}
+    <button type="submit" onclick="update_data({{ permission.id }})" class="btn btn-primary btn-block">更改</button>
+</div>
+
+

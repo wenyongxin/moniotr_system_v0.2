@@ -1,0 +1,1096 @@
+{% extends "base.html" %}
+
+{% block title %}异常记录{% endblock %}
+
+{% block liMarquee%}
+{% endblock %}
+
+{#样式#}
+{% block style %}
+
+
+
+<link rel="stylesheet" href="/static/report/font-awesome/css/font-awesome.min.css"/>
+
+<link rel="stylesheet" href="/static/report/css/select2.min.css">
+
+<link rel="stylesheet" href="/static/report/css/style.css" />
+<link rel="stylesheet" href="/static/report/jquery-ui/jquery-ui.css">
+<script src="/static/report/jquery-ui/jquery-ui.js"></script>
+<link rel="stylesheet" href="/static/report/css/jquery-ui-timepicker-addon.css" />
+<script src="/static/report/js/jquery-ui-timepicker-addon.js"></script>
+
+<style>
+
+.right{width: 1690px; height: 100%; background: #ddd; position:absolute;top: 0px; right: 0px;overflow-y:scroll}
+.right .r_content{width:98.5%; height: 84%; float:right; position: absolute; margin-top:10px;}
+
+
+</style>
+
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+
+	<div class="row">
+		<div class="col-xs-12" style="padding-left: 60px;">
+
+			<div class="table-header" style="background-color:#357EBD;height: 45px;padding-right: 20px;overflow: hidden;">
+				<div style="width: 25%;float: left;font-size: 20px;	">异常记录</div>
+
+				<div class="pull-right">
+
+					<select class="form-control" style="margin-top:6px" id="repo-type">
+						<option value="daily">日报</option>
+						<option value="weeken">周报</option>
+						<option value="month">月报</option>
+					</select>
+				</div>
+
+			</div>
+
+			<div class="row panel-heading" style="background-color: #E1EDF7;height: 50px;text-align: center;margin-top: -1px;margin-left: 0px;margin-right: 0px;overflow: hidden;">
+				<div class="col-sm-2">
+					<div style="float: left;">
+
+						<div class="input-group">
+							<span class="input-group-addon" ><i class="fa fa-calendar fa-lg"></i></span>
+							<input type="text" class="form-control" id="datepicker-anomaly" value="{{ today }}">
+
+						</div>
+					</div>
+
+				</div>
+				<div class="col-sm-10" style="overflow: hidden;">
+					<div class="pull-right">
+						<button class="btn btn-primary" data-toggle="modal" data-target="#myModal-anomaly-add" id="add-anomaly">添加记录</button>
+						<span class="btn btn-success" id='export_anomaly'>导出</span>
+					</div>
+
+				</div>
+
+			</div>
+
+
+			<div class="table-responsive" style="margin-top:-3px;overflow-x:scroll; zoom:0.8;min-width: 1400px;" >
+				<div style="width:190%;">
+					<table class="table table-bordered " style="background-color:white">
+						<thead>
+							<tr role="row" style="color: white;text-align: center;">
+								<th width="8%" height='60px' bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">异常事件</th>
+								<th width="4%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">运营中心</th>
+								<th width="4%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">异常反馈来源</th>
+								<th width="4%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">反馈类型</th>
+								<th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">业务模块</th>
+								<th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">异常级别</th>
+								<th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">是否误报</th>
+								<th width="4%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">是否回收/维护</th>
+								<th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">影响范围</th>
+								<th width="4%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">发生时间</th>
+								<th width="4%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">报错时间</th>
+								<th width="4%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">开始处理时间</th>
+								<th width="4%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">处理结束时间</th>
+								<th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">处理时长</th>
+								<th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">异常归属</th>
+								<th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">处理人</th>
+								<th width="6%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">处理结果</th>
+								<th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">5分钟反馈</th>
+								<th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">15分钟反馈</th>
+								<th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">30分钟反馈</th>
+								<th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">1小时反馈</th>
+								<th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">2小时反馈</th>
+								<th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">监控评价</th>
+								<th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">监控跟进人</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+				<div style="width:190.7%;max-height:85%;overflow-y:scroll;margin-top:-21px">
+					<table class="table  table-bordered" style="background-color:white">
+						<tbody id='anomaly-tbody'>
+						{% for anomaly in anomaly_infos %}
+
+							<tr id="{{ anomaly.id }}">
+								<td width="8%" name="anomaly_affair" style="vertical-align:middle;">{{ anomaly.anomaly_affair }}</td>
+								<td width="4%" name="oper_center" style="text-align:center;vertical-align:middle;">{{ anomaly.oper_center }}</td>
+								<td width="4%" name="anomaly_source" style="text-align:center;vertical-align:middle;">{{ anomaly.anomaly_source }}</td>
+								<td width="4%" name="anomaly_type" style="text-align:center;vertical-align:middle;">{{ anomaly.anomaly_type }}</td>
+								<td width="5%" name="business_module" style="text-align:center;vertical-align:middle;">{{ anomaly.business_module }}</td>
+								<td width="3%" name="anomaly_level" style="text-align:center;vertical-align:middle;">{{ anomaly.anomaly_level }}</td>
+								<td width="3%" name="isnot_fake" style="text-align:center;vertical-align:middle;">{{ anomaly.isnot_fake }}</td>
+								<td width="4%" name="isnot_maintain" style="text-align:center;vertical-align:middle;">{{ anomaly.isnot_maintain }}</td>
+								<td width="3%" name="isnot_affect" style="text-align:center;vertical-align:middle;">{{ anomaly.isnot_affect }}</td>
+								<td width="4%" name="occurrence_time" style="text-align:center;vertical-align:middle;">{{ anomaly.occurrence_time }}</td>
+								<td width="4%" name="error_time" style="text-align:center;vertical-align:middle;">{{ anomaly.error_time }}</td>
+								<td width="4%" name="processing_stime" style="text-align:center;vertical-align:middle;">{{ anomaly.processing_stime }}</td>
+								<td width="4%" name="processing_etime" style="text-align:center;vertical-align:middle;">{{ anomaly.processing_etime }}</td>
+								<td width="3%" name="processing_ltime" style="text-align:center;vertical-align:middle;">{{ anomaly.processing_ltime }}</td>
+								<td width="3%" name="anomaly_attr" style="text-align:center;vertical-align:middle;">{{ anomaly.anomaly_attr }}</td>
+								<td width="3%" name="processor" style="text-align:center;vertical-align:middle;">{{ anomaly.processor }}</td>
+								<td width="6%" name="result" style="vertical-align:middle;">{{ anomaly.result }}</td>
+								<td width="5%" name="five_minutes" style="vertical-align:middle;">{{ anomaly.five_minutes }}</td>
+								<td width="5%" name="fifteen_minutes" style="vertical-align:middle;">{{ anomaly.fifteen_minutes }}</td>
+								<td width="5%" name="thirty_minutes" style="vertical-align:middle;">{{ anomaly.thirty_minutes }}</td>
+								<td width="5%" name="an_hour" style="vertical-align:middle;">{{ anomaly.an_hour }}</td>
+								<td width="5%" name="two_hours" style="vertical-align:middle;">{{ anomaly.two_hours }}</td>
+								<td width="3%" name="evaluation" style="text-align:center;vertical-align:middle;">{{ anomaly.evaluation }}</td>
+								<td width="3%" name="monitor_follow_people" style="text-align:center;vertical-align:middle;">{{ anomaly.monitor_follow_people }}</td>
+							</tr>
+
+							{% endfor %}
+							{% if anomaly_infos %}
+
+							<tr></tr>
+
+							{% else %}
+
+							<tr><td style="color: green;font-size: 30px;" colspan="24"><marquee scrollAmount=10 onmouseover="this.stop();" onmouseout="this.start();" direction=right>{{ yesterday }} 无异常记录!</marquee></td></tr>
+							{% endif %}
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+	</div>
+
+
+
+	<div class="modal fade" id="myModal-anomaly-add" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog" style="width: 65%;min-width:1150px;margin-top: 2%;">
+			<div class="modal-content" >
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h4 class="modal-title" id="myModalLabel">添加异常记录</h4>
+				</div>
+
+				<div class="modal-body">
+
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >异常事件</h5>
+								<input type="text" class="form-control" id="anomaly_affair">
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >运营中心</h5>
+								<select id="oper_center" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="亚欧">亚欧</option>
+									<option value="港台">港台</option>
+									<option value="韩国">韩国</option>
+									<option value="国内">国内</option>
+									<option value="全球">全球</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group"">
+								<h5 >异常反馈来源</h5>
+								<select id="anomaly_source"  class="form-control" style="width: 100%;">
+									<option value="监控发现">监控发现</option>
+									<option value="异常接口">异常接口</option>
+									<option value="运营反馈">运营反馈</option>
+									<option value="运营反馈">客服反馈</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >异常反馈类型</h5>
+								<select id="anomaly_type" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="异常发现">异常发现</option>
+									<option value="异常预警">异常预警</option>
+									<option value="协助处理">协助处理</option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5>业务模块</h5>
+								<select id="business_module" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="登录">登录</option>
+									<option value="储值">储值</option>
+									<option value="注册">注册</option>
+									<option value="活动">活动</option>
+									<option value="后台">后台</option>
+									<option value="平台">平台</option>
+									<option value="工程">工程</option>
+									{% for group in group_list %}
+									<option value="{{ group }}">{{ group }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >异常级别</h5>
+								<select id="anomaly_level" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="S">S</option>
+									<option value="A">A</option>
+									<option value="B">B</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >是否误报</h5>
+								<select id="isnot_fake"  class="form-control" style="width: 100%;">
+									<option value="否">否</option>
+									<option value="是">是</option>
+
+								</select>
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >是否回收/维护</h5>
+								<select id="isnot_maintain"  class="form-control" style="width: 100%;">
+									<option value="否">否</option>
+									<option value="是">是</option>
+								</select>
+
+							</div>
+						</div>
+					</div>
+
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >是否影响业务</h5>
+								<select id="isnot_affect" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="无">无</option>
+									<option value="大">大</option>
+									<option value="中">中</option>
+									<option value="小">小</option>
+								</select>
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >发生时间</h5>
+								<input type="text" class="form-control" value="{{ today }} " id="occurrence_time" style="z-index:1050">
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >报错时间</h5>
+								<input type="text" class="form-control" value="{{ today }} "  id="error_time" style="z-index:1050">
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >开始处理时间</h5>
+								<input type="text" class="form-control" value="{{ today }} "  id="processing_stime" style="z-index:1050">
+
+							</div>
+						</div>
+					</div>
+
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >处理结束时间</h5>
+								<input type="text" class="form-control"  value="{{ today }} " id="processing_etime" style="z-index:1050">
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >异常归属</h5>
+								<select id="anomaly_attr" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="运维">运维</option>
+									<option value="基础开发">基础开发</option>
+									<option value="业务开发">业务开发</option>
+								</select>
+
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >异常处理人</h5>
+								<select id="processor" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="陈政">陈政</option>
+									<option value="杨浩源">杨浩源</option>
+									<option value="张静波">张静波</option>
+									<option value="黄友军">黄友军</option>
+									<option value="杨广泉">杨广泉</option>
+									<option value="林晓斌">林晓彬</option>
+									<option value="郭东逸">郭东逸</option>
+									<option value="欧阳柯">欧阳柯</option>
+									<option value="曾志谦">曾志谦</option>
+									<option value="黄宝">黄宝</option>
+									<option value="郑松文">郑松文</option>
+									<option value="王小翔">王小翔</option>
+									<option value="吴嘉杰">吴嘉杰</option>
+									<option value="安京柱">安京柱</option>
+									<option value="郑镇海">郑镇海</option>
+									<option value="黄金强">黄金强</option>
+									<option value="張圳龍">張圳龍</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >监控评价</h5>
+								<select id="evaluation" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="卓越">卓越</option>
+									<option value="优">优</option>
+									<option value="良">良</option>
+									<option value="中">中</option>
+									<option value="差">差</option>
+								</select>
+							</div>
+						</div>
+
+					</div>
+
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<h5 >监控跟进人</h5>
+								<select id="monitor_follow_people" multiple="multiple" class="form-control" style="width: 100%;">
+									<option value="李荣昌">李荣昌</option>
+									<option value="温永鑫">温永鑫</option>
+									<option value="余旭轮">余旭轮</option>
+									<option value="李祖祥">李祖祥</option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="row">
+						<div class="col-sm-4">
+							<div class="form-group">
+								<h5 >处理结果</h5>
+								<textarea class="form-control" rows="3" id="result"></textarea>
+							</div>
+						</div>
+
+						<div class="col-sm-4">
+							<div class="form-group">
+								<h5 >5分钟反馈</h5>
+								<textarea class="form-control" rows="3" id="five_minutes"></textarea>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<h5 >15分钟反馈</h5>
+								<textarea class="form-control" rows="3" id="fifteen_minutes"></textarea>
+							</div>
+						</div>
+
+					</div>
+
+
+					<div class="row">
+						<div class="col-sm-4">
+							<div class="form-group">
+								<h5 >30分钟反馈</h5>
+								<textarea class="form-control" rows="3" id="thirty_minutes"></textarea>
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<h5 >1小时反馈</h5>
+								<textarea class="form-control" rows="3" id="an_hour"></textarea>
+							</div>
+						</div>
+
+						<div class="col-sm-4">
+							<div class="form-group">
+								<h5 >2小时反馈</h5>
+								<textarea class="form-control" rows="3" id="two_hours"></textarea>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+			<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button class="btn btn-danger" data-toggle="modal" style="display:none" id="anomaly_del">删除</button>
+					<button class="btn btn-warning" data-toggle="modal" style="display:none" id="anomaly_save">保存</button>
+					<button type="button" class="btn btn-primary" id='sub-add-anomaly'>提交</button>
+
+				</div>
+
+		</div>
+	</div>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+<script src="/static/report/js/echarts.min.js"></script>
+<script  src="/static/report/js/select2.min.js"></script>
+
+
+<script type="text/javascript">
+
+//索引框
+$("#oper_center").select2({tags: true,});
+
+//索引框
+$("#anomaly_level").select2({tags: true,});
+
+
+//索引框
+$("#anomaly_type").select2({tags: true,});
+
+
+//索引框
+$("#business_module").select2({tags: true,});
+
+
+//索引框
+$("#experience").select2({tags: true,});
+
+//索引框
+$("#isnot_affect").select2({tags: true,});
+
+
+//索引框
+$("#anomaly_attr").select2({tags: true,});
+
+//索引框
+$("#evaluation").select2({tags: true,});
+
+
+//索引框
+$("#processor").select2({tags: true,});
+
+//索引框
+$("#monitor_follow_people").select2({ tags: true,});
+
+
+//初始化模态框内容
+
+$("#add-anomaly").click(function(){
+	var id = $("div.modal-content").attr('id');
+	function p(s) {
+		return s < 10 ? '0' + s: s;
+	}
+	var myDate = new Date();
+	//获取当前年
+	var year=myDate.getFullYear();
+	//获取当前月
+	var month=myDate.getMonth()+1;
+	//获取当前日
+	var date=myDate.getDate();
+
+	var now=year+'-'+p(month)+"-"+p(date)+" ";
+	if(id){
+		$("div.modal-content").removeAttr('id');
+
+		$("#anomaly_del").css("display","none");
+		$("#anomaly_save").css("display","none");
+		$("#sub-add-anomaly").css("display","");
+		$("#anomaly_affair").val("");
+		$("#oper_center").select2("val", "");
+		$("#anomaly_type").select2("val", "");
+		$("#business_module").select2("val", "");
+		$("#anomaly_level").select2("val", "");
+		$("#isnot_fake").val("");
+		$("#isnot_maintain").val("");
+		$("#isnot_affect").select2("val", "");
+
+		$("#occurrence_time").val(now);
+		$("#error_time").val(now);
+		$("#processing_stime").val(now);
+		$("#processing_etime").val(now);
+
+		$("#anomaly_attr").select2("val", "");
+		$("#processor").select2("val", "");
+		$("#result").val("");
+		$("#five_minutes").val("");
+		$("#fifteen_minutes").val("");
+		$("#thirty_minutes").val("");
+		$("#an_hour").val("");
+		$("#two_hours").val("");
+		$("#evaluation").select2("val", "");
+		$("#monitor_follow_people").select2("val", "");
+	}
+});
+
+
+//选择日期类型更新异常
+$("#repo-type").change(function(){
+	var anomaly_date = $("#datepicker-anomaly").val();
+	var repo_type = $("#repo-type").val();
+	$.post('/anomalyreq/',{'anomaly_date':anomaly_date,'repo_type':repo_type},function(data){
+		if(data != '[]'){
+		$("#anomaly-tbody").text("");
+		data = eval('(' + data + ')');
+		var	str = "";
+		for( i in data){
+			str +='<tr id="'+data[i].id+'"><td width="8%" style="vertical-align:middle;">'+data[i].anomaly_affair+'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].oper_center +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].anomaly_source +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].anomaly_type +'</td>'
+			str +='<td width="5%" style="text-align:center;vertical-align:middle;">'+ data[i].business_module +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].anomaly_level +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].isnot_fake +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].isnot_maintain +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].isnot_affect +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].occurrence_time +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].error_time +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].processing_stime +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].processing_etime +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].processing_ltime +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].anomaly_attr +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].processor +'</td>'
+			str +='<td width="6%" style="vertical-align:middle;">'+ data[i].result +'</td>'
+			str +='<td width="5%" style="vertical-align:middle;">'+ data[i].five_minutes +'</td>'
+			str +='<td width="5%" style="vertical-align:middle;">'+ data[i].fifteen_minutes +'</td>'
+			str +='<td width="5%" style="vertical-align:middle;">'+ data[i].thirty_minutes +'</td>'
+			str +='<td width="5%" style="vertical-align:middle;">'+ data[i].an_hour +'</td>'
+			str +='<td width="5%" style="vertical-align:middle;">'+ data[i].two_hours +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].evaluation +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].monitor_follow_people +'</td></tr>'
+
+			};
+
+		str += `
+			<script>
+
+			//双击编辑异常记录
+			$("td").dblclick(function(){
+
+				var id = $(this).parent().attr("id");
+				$("div.modal-content").attr('id',id);
+				if(id){
+
+					$("#anomaly_del").css("display","");
+					$("#anomaly_save").css("display","");
+					$("#sub-add-anomaly").css("display","none");
+
+					$.post('/alteranomaly/',{'id':id},function(data){
+						data = eval('(' + data + ')');
+						for(i in data){
+							$("#anomaly_affair").val(data[i].anomaly_affair);
+							if(data[i].oper_center){
+								$("#oper_center").select2({'data':[{id:data[i].oper_center, text:data[i].oper_center},]});
+								$("#oper_center").val(data[i].oper_center).select2({tags: true,});
+
+							}else{
+								$("#oper_center").val(data[i].oper_center).select2({tags: true,});
+							}
+							$("#anomaly_source").val(data[i].anomaly_source);
+							$("#anomaly_type").val(data[i].anomaly_type).select2({tags: true,});
+
+							if(data[i].business_module){
+								$("#business_module").select2({'data':[{id:data[i].business_module, text:data[i].business_module},]});
+								$("#business_module").val(data[i].business_module).select2({tags: true,});
+
+							}else{
+								$("#business_module").val(data[i].business_module).select2({tags: true,});
+							}
+							$("#anomaly_level").val(data[i].anomaly_level).select2({tags: true,});
+							$("#isnot_fake").val(data[i].isnot_fake);
+							$("#isnot_maintain").val(data[i].isnot_maintain);
+							$("#isnot_affect").val(data[i].isnot_affect).select2({tags: true,});
+							$("#occurrence_time").val(data[i].occurrence_time);
+							$("#error_time").val(data[i].error_time);
+							$("#processing_stime").val(data[i].processing_stime);
+							$("#processing_etime").val(data[i].processing_etime);
+							if(data[i].anomaly_attr){
+								$("#anomaly_attr").select2({'data':[{id:data[i].anomaly_attr, text:data[i].anomaly_attr},]});
+								$("#anomaly_attr").val(data[i].anomaly_attr).select2({tags: true,});
+							}else{
+								$("#anomaly_attr").val(data[i].anomaly_attr).select2({tags: true,});
+							}
+
+							if(data[i].processor){
+								$("#processor").select2({'data':[{id:data[i].processor, text:data[i].processor},]});
+								$("#processor").val(data[i].processor).select2({tags: true,});
+
+							}else{
+								$("#processor").val(data[i].processor).select2({tags: true,});
+							}
+							$("#result").val(data[i].result);
+							$("#five_minutes").val(data[i].five_minutes);
+							$("#fifteen_minutes").val(data[i].fifteen_minutes);
+							$("#thirty_minutes").val(data[i].thirty_minutes);
+							$("#an_hour").val(data[i].an_hour);
+							$("#two_hours").val(data[i].two_hours);
+							$("#evaluation").val(data[i].evaluation).select2({tags: true,});
+							$("#monitor_follow_people").val(data[i].monitor_follow_people).select2({tags: true,});
+						}
+					});
+
+					//跳出模态框
+					 $('#myModal-anomaly-add').modal({ show: true, backdrop: 'static' });
+					}
+			});
+
+			//修改异常记录
+			 $("#anomaly_save").click(function(){
+				var data = {};
+				data["id"]= id;
+				data["anomaly_affair"]= $("#anomaly_affair").val();
+				data["oper_center"] = $("#oper_center option:selected").text();
+				data["anomaly_source"] = $("#anomaly_source").val();
+				data["anomaly_type"] = $("#anomaly_type option:selected").text();
+				data["business_module"] = $("#business_module option:selected").text();
+				data["anomaly_level"] = $("#anomaly_level option:selected").text();
+				data["isnot_fake"] = $("#isnot_fake option:selected").text();
+				data["isnot_maintain"] = $("#isnot_maintain option:selected").text();
+				data["isnot_affect"] = $("#isnot_affect option:selected").text();
+				data["occurrence_time"] = $("#occurrence_time").val();
+				data["error_time"] = $("#error_time").val();
+				data["processing_stime"] = $("#processing_stime").val();
+				data["processing_etime"] = $("#processing_etime").val();
+				data["anomaly_attr"] = $("#anomaly_attr option:selected").text();
+				data["processor"] = $("#processor option:selected").text();
+				data["result"] = $("#result").val();
+				data["five_minutes"] = $("#five_minutes").val();
+				data["fifteen_minutes"] = $("#fifteen_minutes").val();
+				data["thirty_minutes"] = $("#thirty_minutes").val();
+				data["an_hour"] = $("#an_hour").val();
+				data["two_hours"] = $("#two_hours").val();
+				data["evaluation"] = $("#evaluation option:selected").text();
+				data["monitor_follow_people"] = $("#monitor_follow_people option:selected").text();
+				$.post('/anomalyreq/',data,function(data){
+					 alert(data);
+					 location.reload();
+
+					});
+			});
+			//删除异常记录
+			$("#anomaly_del").click(function(){
+				var data = {};
+				data["id"]= id;
+				data["action"] = 'del';
+				$.post('/anomalyreq/',data,function(data){
+					 alert(data);
+					 location.reload();
+
+					});
+
+				});`
+
+		str +='</'+'script>'
+
+
+		$("#anomaly-tbody").append(str);
+		}
+	else{
+		$("#anomaly-tbody").text("");
+
+
+		str = '<tr><td style="color: green;font-size: 30px;" colspan="24"><marquee scrollAmount=15  direction=right>'+ anomaly_date + '  无异常记录!'+'</marquee></td></tr>';
+
+		$("#anomaly-tbody").append(str);
+	}
+	});
+});
+
+
+//选择日期更新异常
+$("#datepicker-anomaly").change(function(){
+	var anomaly_date = $(this).val();
+	var repo_type = $("#repo-type").val();
+	$.post('/anomalyreq/',{'anomaly_date':anomaly_date,'repo_type':repo_type},function(data){
+	if(data != '[]'){
+		$("#anomaly-tbody").text("");
+		data = eval('(' + data + ')');
+		var	str = "";
+		for( i in data){
+			str +='<tr id="'+data[i].id+'"><td width="8%" style="vertical-align:middle;">'+data[i].anomaly_affair+'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].oper_center +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].anomaly_source +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].anomaly_type +'</td>'
+			str +='<td width="5%" style="text-align:center;vertical-align:middle;">'+ data[i].business_module +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].anomaly_level +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].isnot_fake +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].isnot_maintain +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].isnot_affect +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].occurrence_time +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].error_time +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].processing_stime +'</td>'
+			str +='<td width="4%" style="text-align:center;vertical-align:middle;">'+ data[i].processing_etime +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].processing_ltime +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].anomaly_attr +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].processor +'</td>'
+			str +='<td width="6%" style="vertical-align:middle;">'+ data[i].result +'</td>'
+			str +='<td width="5%" style="vertical-align:middle;">'+ data[i].five_minutes +'</td>'
+			str +='<td width="5%" style="vertical-align:middle;">'+ data[i].fifteen_minutes +'</td>'
+			str +='<td width="5%" style="vertical-align:middle;">'+ data[i].thirty_minutes +'</td>'
+			str +='<td width="5%" style="vertical-align:middle;">'+ data[i].an_hour +'</td>'
+			str +='<td width="5%" style="vertical-align:middle;">'+ data[i].two_hours +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].evaluation +'</td>'
+			str +='<td width="3%" style="text-align:center;vertical-align:middle;">'+ data[i].monitor_follow_people +'</td></tr>'
+
+			};
+
+		str += `
+			<script>
+
+			//双击编辑异常记录
+			$("td").dblclick(function(){
+
+				var id = $(this).parent().attr("id");
+				$("div.modal-content").attr('id',id);
+				if(id){
+
+					$("#anomaly_del").css("display","");
+					$("#anomaly_save").css("display","");
+					$("#sub-add-anomaly").css("display","none");
+
+					$.post('/alteranomaly/',{'id':id},function(data){
+						data = eval('(' + data + ')');
+						for(i in data){
+							$("#anomaly_affair").val(data[i].anomaly_affair);
+							if(data[i].oper_center){
+								$("#oper_center").select2({'data':[{id:data[i].oper_center, text:data[i].oper_center},]});
+								$("#oper_center").val(data[i].oper_center).select2({tags: true,});
+
+							}else{
+								$("#oper_center").val(data[i].oper_center).select2({tags: true,});
+							}
+							$("#anomaly_source").val(data[i].anomaly_source);
+							$("#anomaly_type").val(data[i].anomaly_type).select2({tags: true,});
+
+							if(data[i].business_module){
+								$("#business_module").select2({'data':[{id:data[i].business_module, text:data[i].business_module},]});
+								$("#business_module").val(data[i].business_module).select2({tags: true,});
+
+							}else{
+								$("#business_module").val(data[i].business_module).select2({tags: true,});
+							}
+							$("#anomaly_level").val(data[i].anomaly_level).select2({tags: true,});
+							$("#isnot_fake").val(data[i].isnot_fake);
+							$("#isnot_maintain").val(data[i].isnot_maintain);
+							$("#isnot_affect").val(data[i].isnot_affect).select2({tags: true,});
+							$("#occurrence_time").val(data[i].occurrence_time);
+							$("#error_time").val(data[i].error_time);
+							$("#processing_stime").val(data[i].processing_stime);
+							$("#processing_etime").val(data[i].processing_etime);
+							if(data[i].anomaly_attr){
+								$("#anomaly_attr").select2({'data':[{id:data[i].anomaly_attr, text:data[i].anomaly_attr},]});
+								$("#anomaly_attr").val(data[i].anomaly_attr).select2({tags: true,});
+							}else{
+								$("#anomaly_attr").val(data[i].anomaly_attr).select2({tags: true,});
+							}
+
+							if(data[i].processor){
+								$("#processor").select2({'data':[{id:data[i].processor, text:data[i].processor},]});
+								$("#processor").val(data[i].processor).select2({tags: true,});
+
+							}else{
+								$("#processor").val(data[i].processor).select2({tags: true,});
+							}
+							$("#result").val(data[i].result);
+							$("#five_minutes").val(data[i].five_minutes);
+							$("#fifteen_minutes").val(data[i].fifteen_minutes);
+							$("#thirty_minutes").val(data[i].thirty_minutes);
+							$("#an_hour").val(data[i].an_hour);
+							$("#two_hours").val(data[i].two_hours);
+							$("#evaluation").val(data[i].evaluation).select2({tags: true,});
+							$("#monitor_follow_people").val(data[i].monitor_follow_people).select2({tags: true,});
+						}
+					});
+
+					//跳出模态框
+					 $('#myModal-anomaly-add').modal({ show: true, backdrop: 'static' });
+					}
+			});
+
+			//修改异常记录
+			 $("#anomaly_save").click(function(){
+				var data = {};
+				data["id"]= id;
+				data["anomaly_affair"]= $("#anomaly_affair").val();
+				data["oper_center"] = $("#oper_center option:selected").text();
+				data["anomaly_source"] = $("#anomaly_source").val();
+				data["anomaly_type"] = $("#anomaly_type option:selected").text();
+				data["business_module"] = $("#business_module option:selected").text();
+				data["anomaly_level"] = $("#anomaly_level option:selected").text();
+				data["isnot_fake"] = $("#isnot_fake option:selected").text();
+				data["isnot_maintain"] = $("#isnot_maintain option:selected").text();
+				data["isnot_affect"] = $("#isnot_affect option:selected").text();
+				data["occurrence_time"] = $("#occurrence_time").val();
+				data["error_time"] = $("#error_time").val();
+				data["processing_stime"] = $("#processing_stime").val();
+				data["processing_etime"] = $("#processing_etime").val();
+				data["anomaly_attr"] = $("#anomaly_attr option:selected").text();
+				data["processor"] = $("#processor option:selected").text();
+				data["result"] = $("#result").val();
+				data["five_minutes"] = $("#five_minutes").val();
+				data["fifteen_minutes"] = $("#fifteen_minutes").val();
+				data["thirty_minutes"] = $("#thirty_minutes").val();
+				data["an_hour"] = $("#an_hour").val();
+				data["two_hours"] = $("#two_hours").val();
+				data["evaluation"] = $("#evaluation option:selected").text();
+				data["monitor_follow_people"] = $("#monitor_follow_people option:selected").text();
+				$.post('/anomalyreq/',data,function(data){
+					 alert(data);
+					 location.reload();
+
+					});
+			});
+			//删除异常记录
+			$("#anomaly_del").click(function(){
+				var data = {};
+				data["id"]= id;
+				data["action"] = 'del';
+				$.post('/anomalyreq/',data,function(data){
+					 alert(data);
+					 location.reload();
+
+					});
+
+				});`
+
+		str +='</'+'script>'
+
+
+		$("#anomaly-tbody").append(str);
+		}
+	else{
+		$("#anomaly-tbody").text("");
+
+
+		str = '<tr><td style="color: green;font-size: 30px;" colspan="24"><marquee scrollAmount=15  direction=right>'+ anomaly_date + '  无异常记录!'+'</marquee></td></tr>';
+
+		$("#anomaly-tbody").append(str);
+	}
+
+	});
+
+});
+
+
+//添加异常记录
+
+$("#sub-add-anomaly").click(function(){
+	var data = {};
+	data["anomaly_affair"]= $("#anomaly_affair").val();
+	data["oper_center"] = $("#oper_center option:selected").text();
+	data["anomaly_source"] = $("#anomaly_source").val();
+	data["anomaly_type"] = $("#anomaly_type option:selected").text();
+	data["business_module"] = $("#business_module option:selected").text();
+	data["anomaly_level"] = $("#anomaly_level option:selected").text();
+	data["isnot_fake"] = $("#isnot_fake option:selected").text();
+	data["isnot_maintain"] = $("#isnot_maintain option:selected").text();
+	data["isnot_affect"] = $("#isnot_affect option:selected").text();
+	data["occurrence_time"] = $("#occurrence_time").val();
+	data["error_time"] = $("#error_time").val();
+	data["processing_stime"] = $("#processing_stime").val();
+	data["processing_etime"] = $("#processing_etime").val();
+	data["anomaly_attr"] = $("#anomaly_attr option:selected").text();
+	data["processor"] = $("#processor option:selected").text();
+	data["result"] = $("#result").val();
+	data["five_minutes"] = $("#five_minutes").val();
+	data["fifteen_minutes"] = $("#fifteen_minutes").val();
+	data["thirty_minutes"] = $("#thirty_minutes").val();
+	data["an_hour"] = $("#an_hour").val();
+	data["two_hours"] = $("#two_hours").val();
+	data["evaluation"] = $("#evaluation option:selected").text();
+	data["monitor_follow_people"] = $("#monitor_follow_people option:selected").text();
+	$.post('/anomalyreq/',data,function(){
+		location.reload();
+	});
+});
+
+
+
+//双击编辑异常记录
+$("td").dblclick(function(){
+	var id = $(this).parent().attr("id");
+	$("div.modal-content").attr('id',id);
+	if(id){
+		$("#anomaly_del").css("display","");
+		$("#anomaly_save").css("display","");
+		$("#sub-add-anomaly").css("display","none");
+		$.post('/alteranomaly/',{'id':id},function(data){
+			data = eval('(' + data + ')');
+			for(i in data){
+				$("#anomaly_affair").val(data[i].anomaly_affair);
+				if(data[i].oper_center){
+					$("#oper_center").select2({'data':[{id:data[i].oper_center, text:data[i].oper_center},]});
+					$("#oper_center").val(data[i].oper_center).select2({tags: true,});
+
+				}else{
+					$("#oper_center").val(data[i].oper_center).select2({tags: true,});
+				}
+
+
+				$("#anomaly_source").val(data[i].anomaly_source);
+
+				$("#anomaly_type").val(data[i].anomaly_type).select2({tags: true,});
+
+
+				if(data[i].business_module){
+					$("#business_module").select2({'data':[{id:data[i].business_module, text:data[i].business_module},]});
+					$("#business_module").val(data[i].business_module).select2({tags: true,});
+
+				}else{
+					$("#business_module").val(data[i].business_module).select2({tags: true,});
+				}
+
+				$("#anomaly_level").val(data[i].anomaly_level).select2({tags: true,});
+				$("#isnot_fake").val(data[i].isnot_fake);
+				$("#isnot_maintain").val(data[i].isnot_maintain);
+				$("#isnot_affect").val(data[i].isnot_affect).select2({tags: true,});
+				$("#occurrence_time").val(data[i].occurrence_time);
+				$("#error_time").val(data[i].error_time);
+				$("#processing_stime").val(data[i].processing_stime);
+				$("#processing_etime").val(data[i].processing_etime);
+				if(data[i].anomaly_attr){
+					$("#anomaly_attr").select2({'data':[{id:data[i].anomaly_attr, text:data[i].anomaly_attr},]});
+					$("#anomaly_attr").val(data[i].anomaly_attr).select2({tags: true,});
+				}else{
+					$("#anomaly_attr").val(data[i].anomaly_attr).select2({tags: true,});
+				}
+
+				if(data[i].processor){
+					$("#processor").select2({'data':[{id:data[i].processor, text:data[i].processor},]});
+					$("#processor").val(data[i].processor).select2({tags: true,});
+
+				}else{
+					$("#processor").val(data[i].processor).select2({tags: true,});
+				}
+
+				$("#result").val(data[i].result);
+				$("#five_minutes").val(data[i].five_minutes);
+				$("#fifteen_minutes").val(data[i].fifteen_minutes);
+				$("#thirty_minutes").val(data[i].thirty_minutes);
+				$("#an_hour").val(data[i].an_hour);
+				$("#two_hours").val(data[i].two_hours);
+				$("#evaluation").val(data[i].evaluation).select2({tags: true,});
+				$("#monitor_follow_people").val(data[i].monitor_follow_people).select2({tags: true,});
+			}
+
+		});
+		//跳出模态框
+		 $('#myModal-anomaly-add').modal({ show: true, backdrop: 'static' });
+	}
+});
+
+
+//修改异常记录
+$("#anomaly_save").click(function(){
+	var data = {};
+	data["id"]= $("div.modal-content").attr('id');
+	data["anomaly_affair"]= $("#anomaly_affair").val();
+	data["oper_center"] = $("#oper_center option:selected").text();
+	data["anomaly_source"] = $("#anomaly_source").val();
+	data["anomaly_type"] = $("#anomaly_type option:selected").text();
+	data["business_module"] = $("#business_module option:selected").text();
+	data["anomaly_level"] = $("#anomaly_level option:selected").text();
+	data["isnot_fake"] = $("#isnot_fake option:selected").text();
+	data["isnot_maintain"] = $("#isnot_maintain option:selected").text();
+	data["isnot_affect"] = $("#isnot_affect option:selected").text();
+	data["occurrence_time"] = $("#occurrence_time").val();
+	data["error_time"] = $("#error_time").val();
+	data["processing_stime"] = $("#processing_stime").val();
+	data["processing_etime"] = $("#processing_etime").val();
+	data["anomaly_attr"] = $("#anomaly_attr option:selected").text();
+	data["processor"] = $("#processor option:selected").text();
+	data["result"] = $("#result").val();
+	data["five_minutes"] = $("#five_minutes").val();
+	data["fifteen_minutes"] = $("#fifteen_minutes").val();
+	data["thirty_minutes"] = $("#thirty_minutes").val();
+	data["an_hour"] = $("#an_hour").val();
+	data["two_hours"] = $("#two_hours").val();
+	data["evaluation"] = $("#evaluation option:selected").text();
+	data["monitor_follow_people"] = $("#monitor_follow_people option:selected").text();
+	$.post('/anomalyreq/',data,function(data){
+		 alert(data);
+		 location.reload();
+	});
+});
+
+
+
+//删除异常记录
+$("#anomaly_del").click(function(){
+	var data = {};
+	data["id"]= $("div.modal-content").attr('id');
+	data["action"] = 'del';
+	$.post('/anomalyreq/',data,function(data){
+		 alert(data);
+		 location.reload();
+
+	});
+});
+
+
+
+$('#datepicker-anomaly').datepicker({
+	dateFormat: "yy-mm-dd",
+	maxDate: "+0D",
+});
+
+
+$('#occurrence_time').datetimepicker({
+	dateFormat: "yy-mm-dd",
+	timeFormat: "HH:mm",
+	hourGrid: 4,
+	minuteGrid: 10,
+	maxDate: "+0D",
+});
+
+
+$('#error_time').datetimepicker({
+	dateFormat: "yy-mm-dd",
+	timeFormat: "HH:mm",
+	hourGrid: 4,
+	minuteGrid: 10,
+	maxDate: "+0D",
+});
+
+
+$('#processing_stime').datetimepicker({
+	dateFormat: "yy-mm-dd",
+	timeFormat: "HH:mm",
+	hourGrid: 4,
+	minuteGrid: 10,
+	maxDate: "+0D",
+});
+
+
+$('#processing_etime').datetimepicker({
+	dateFormat: "yy-mm-dd",
+	timeFormat: "HH:mm",
+	hourGrid: 4,
+	minuteGrid: 10,
+	maxDate: "+0D",
+});
+
+
+
+//导出异常
+$("#export_anomaly").click(function(){
+	var anomaly_date = $("#datepicker-anomaly").val();
+	var repo_type = $("#repo-type").val();
+	$.post('/exportanomaly/',{'anomaly_date':anomaly_date,'repo_type':repo_type},function(data){
+		window.open(data,'_blank');
+	});
+
+});
+
+
+
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% from "macros/macro_manager_user.html" import user_input,user_select %}
+
+<div class="c_left">
+    <form id="update_file" target='frameFile' action="{{ url_for('auth.update_image') }}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="userid" value="{{ user.id }}">
+        <input type="file" name="file" id="lefile2" class="filestyle" data-icon="false" style="display:none">
+        <img class="l_avatar" src="../../static/users/images/{{ user.avatar }}"onclick="select_image()">
+        <span class="l_rose">{{ user.role.name }}</span>
+        <input class="btn btn-primary l_update_button" disabled="disabled" onclick="update_images({{ user.id }})" value="上传头像">
+    </form>
+    <iframe id='frameFile' name='frameFile' style='display: none;'></iframe>
+
+</div>
+<div class="c_right">
+    <div class="r_frame">
+        <div class="f_message">
+            <h1>Hello: {{ user.username }}</h1>
+            <input type="hidden" name="id" value="{{ user.id }}">
+            {{ user_input(name="手机", value=user.telphone, class="m_telphone") }}
+            {{ user_input(name="邮箱", value=user.email, class="m_email") }}
+            {{ user_input(name="密码", value=default_password, class="m_password", type="password") }}
+            {{ user_select(name="部门", class="m_department", data=department, match=user.department) }}
+            {{ user_select(name="角色", class="m_roles", data=roles, match=user.role_id) }}
+            {{ user_select(name="权限", class="m_permission", data=permission, match=user.permission_id) }}
+            {{ user_select(name="状态", class="m_status", data=status_list, match=user.status) }}
+            <button type="button" class="btn btn-primary user_button" onclick="user_button({{ user.id }})">提交</button>
+        </div>
+    </div>
+</div>

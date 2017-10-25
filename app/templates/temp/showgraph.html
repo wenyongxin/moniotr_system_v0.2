@@ -1,0 +1,50 @@
+{% from "macros/macro_manager_user.html" import user_list_select %}
+
+
+{% if not data %}
+    <div class="input-group" id="showgrouph_div">
+        <div class="input-group-addon">graphs选择</div>
+        <select  class="form-control showgrouph">
+            {% if itemids %}
+                {% for val in itemids %}
+                    <option value={{ val }}>{{ val | return_itemid_name(ip) }}</option>
+                {% endfor %}
+            {% elif graphids %}
+                {% for val in graphids %}
+                    <option value={{ val }}>{{ val | return_graphid_name }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
+        {% if itemids %}
+            <span class="input-group-btn">
+                <button class="btn btn-default" type="button" onclick="more_infos('{{ boole }}')">查看更多</button>
+            </span>
+        {% endif %}
+    </div>
+{% else %}
+    <div id="showvalue_div">
+        <button type="button" class="btn btn-primary" id="more_item_values" onclick="more_infos('{{ boole }}')">详细查看</button>
+    </div>
+{% endif %}
+
+{% if not data %}
+<div>
+    <image id="image_grouph" src="" onclick="more_infos('{{ boole }}')" itemid="" hostid="" graphid="" />
+</div>
+{% else %}
+<div class="values">
+    <table class="table table-striped table-hover" itemid="">
+        <tr>
+            <th style="width: 20%;">报警时间</th>
+            <th style="width: 80%;">值</th>
+        </tr>
+        {% for line in data %}
+        <tr>
+            <td style="width: 20%;">{{ line['clock'] | web_strftime_to_date }}</td>
+            <td style="width: 80%;">{{ line['value'] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endif %}
+

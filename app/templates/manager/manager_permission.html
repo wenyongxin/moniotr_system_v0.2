@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{#样式#}
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='efun/css/manager_permission.css') }}">
+    <script src="{{ url_for('static', filename='dtree/js/dtree.js') }}"></script>
+    <link href="{{ url_for('static', filename='dtree/css/dtree.css') }}" rel="stylesheet">
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title"><span class="glyphicon glyphicon-indent-left title_icon"></span>{{ self.title() }}</h3>
+        </div>
+        <div class="panel-body panel-efun">
+            <div class="c_contest">
+                <table class="table table-bordered">
+                    <tr>
+                        <th>序号</th><th>名称</th><th>描述</th><th>操作</th>
+                    </tr>
+                    {% for i in sections_db %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ i.name }}</td>
+                            <td>{{ i.describe }}</td>
+                            <td>
+                                <a onclick="permission_edit({{ i.id }})">修改</a>
+                                <a onclick="show_users({{ i.id }})">关联用户</a>
+                                <a onclick="permission_edit({{ i.id }}, 'clone')">克隆</a>
+                                <a onclick="permission_delete({{ i.id }})">删除</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{# jq #}
+{% block javascript %}
+    <script src="{{ url_for('static', filename="efun/js/manager_permission.js") }}"></script>
+{% endblock %}

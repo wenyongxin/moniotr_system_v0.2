@@ -1,0 +1,44 @@
+﻿.right .r_content{margin-right:none; height:850px;}
+.row{height:100%; width: 100%; overflow-y:auto;}
+.show_user{width:500px; height:220px; margin-left:25px; margin-bottom: 25px; background:#fff; cursor: pointer;}
+.show_user:hover{border:4px solid #428bca;}
+
+.show_user .s_left{width:40%; height:100%; float:left;}
+.show_user .s_left .s_avatar{width:60%; height:50%; margin-top:20px; margin-left:20%;}
+.show_user .s_left .s_avatar img {width:100%; height:100%; border-radius: 50%; border: 3px solid #ddd;}
+.show_user .s_left .s_username{text-align:center; font-size: 24px;  font-family: 微软雅黑;}
+.show_user .s_left .s_disabled{text-align:center; font-size: 18px; font-family: 微软雅黑; color:red;}
+.show_user .s_left .s_department{text-align:center; font-size: 18px; font-family: 微软雅黑;}
+
+.show_user .s_right{width:60%; height:100%; float:right;}
+.show_user .s_right .r_message{margin-top:20px; width:80%;}
+.show_user .s_right .r_message .nature{width: 100%; height: 24px; border: 1px solid #ddd; font-size: 14px; margin-top: 4px; margin-bottom: 4px;}
+.show_user .s_right .r_message .r_nature{height: 50px;}
+.show_user .s_right .r_message .nature .n_message{margin-left:5px;}
+.show_user .s_right .title_span{font-weight: bold; margin-top:5px; font-size:14px;}
+
+.show_user .s_button{float: right; width: 30px; height: 30px; margin-right: -15px; margin-top: -210px;}
+.show_user .s_button .button_icon{width: 16px; height: 16px; margin: 8px auto; display: block;}
+
+/*{#  重构弹窗属性  #}*/
+.alert_size .a_title {width: 1066px; height: 596px;margin-top: -298px; margin-left: -533px;}
+.alert_size .a_title .t_content {height: 85%; width: 100%;}
+.alert_size .a_title .t_content .c_left{width: 30%; height: 100%; float: left;}
+.alert_size .a_title .t_content .c_left .l_avatar{cursor:pointer; width: 210px; height: 210px; border-radius: 50%; border: 3px solid #ddd; margin-left: 15%; margin-top: 10%;}
+.alert_size .a_title .t_content .c_left .l_rose{color: white; font-weight: bold;display: block;width: 90%;height: 8%;margin-top: 30px;background: #428BCA;text-align: center; margin-left: 15px;}
+.alert_size .a_title .t_content .c_left .l_update_button{width: 200px;height: 70px;font-size: 25px; font-family: 微软雅黑; line-height: 50px; margin-top: 55px; display: block; margin-left: 50px; }
+
+
+
+.alert_size .a_title .t_content .c_right{width: 70%; height: 100%; float: right;}
+.alert_size .a_title .t_content .c_right .r_frame{width: 96%; height: 100%; border: 1px solid #ddd;}
+.alert_size .a_title .t_content .c_right .r_frame .f_message{width: 90%; margin-top: 30px;margin-left: 20px;}
+
+.user_inputs{margin-top: 15px;}
+.user_button{margin-top: 15px; float: right; width: 100px; height: 50px;}
+.navbar-default{position: fixed; bottom: 0; width: 84%; z-index:1}
+.g_lines{float:left;margin-left: 10px;}
+.l_laber{font-size: 18px;margin-right: 11px;}
+/*{# 索隐框样式 #}*/
+.search{width: 30%; float: left;margin-top: 8px;}
+.user_disabled{background: #9d9d9d}

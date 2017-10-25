@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{#样式#}
+{% block style %}
+    <style type="text/css">
+        {#  重构模板contet的样式 #}
+        .right .r_content{ margin-right:none; height:800px;}
+
+        {# 展示框头部样式 #}
+        .right .r_content .c_message {width:100%; height: 100%;}
+        .right .r_content .c_message .m_head {width:100%; height: 30px; background: #428bca;}
+        .right .r_content .c_message .m_head .h_title {font-size: 18px; font-family: 微软雅黑; color: #fff; line-height: 30px; margin-left: 40px;}
+        .h_glyphicon{margin-right: 5px;}
+
+        {# 展示框内容样式 #}
+        .right .r_content .c_message .m_info {width:100%; height: 95%; background: #ffffff;}
+        .right .r_content .c_message .m_info .i_button{width: 96%;height: 15%;margin: auto; margin-bottom: 15px;}
+        .right .r_content .c_message .m_info .i_message{width: 96%;height: 80%;border: 1px solid #ddd;margin: auto; overflow-y:auto;}
+        .right .r_content .c_message .m_info .i_message .glyphicon h3{margin-left:10px;}
+
+    </style>
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+
+
+{% endblock %}
+
+{# jq #}
+{% block javascript %}
+
+
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+{#样式#}
+{% block style %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='efun/css/manager_url.css') }}">
+    .right .r_content{height:0px;}
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title"><span class="glyphicon glyphicon-th title_icon"></span>{{ self.title() }}</h3>
+        </div>
+        <div class="panel-body panel-efun">
+            <div class="i_button">
+                <div class="input-group">
+                    <span class="input-group-addon sesction_firame" id="basic-addon1">版块选择</span>
+                    <select class="form-control list_sesctions">
+                        {% for head in heads %}
+                            <option value="{{ head.id }}">{{ head.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-primary dropdown-toggle">操作<span class="caret"></span></button>
+                    </div>
+                    <div class="show_list">
+                        <div onclick="sesction_edit()">修改</div>
+                        <div onclick="sesction_clone()">克隆</div>
+                        <div onclick="sesction_delete()">删除</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="i_message">
+                {% for section in sections_db %}
+                    <div class="panel panel-primary">
+                        <div class="panel-heading" id="{{ loop.index0 }}">
+                            <h3 class="panel-title">
+                                <span class="glyphicon {{ section['section'].icon.icon_name }}">
+                                    {{ section['section'].name }}
+                                </span>
+                            </h3>
+                            <div class="h_button" id="h_button-{{ loop.index0 }}">
+                                <span class="glyphicon glyphicon-chevron-down"></span>
+                            </div>
+                        </div>
+                        <div class="panel-body body_line plan-content" id="panel-body-{{ loop.index0 }}">
+                            {% for url in section['urls'] %}
+                                <div class="m_line" id="m_line-{{ loop.index0 }}">
+                                    <div class="l_number">{{ loop.index }}</div>
+                                    <div class="l_icon"><span class="glyphicon {{ url.icon.icon_name }}"></span></div>
+                                    <div class="l_name l_name-{{ url.id }}"><input id="name_input-{{ url.id }}" type="text" class="form-control" value="{{ url.name }}" disabled="True"></div>
+                                    <div class="l_href l_href-{{ url.id }}"><input id="href_input-{{ url.id }}" type="text" class="form-control" value="{{ url.href }}" disabled="True"></div>
+                                    <div class="l_button">
+                                        <a class="b_edit-{{ url.id }}" onclick="show_edit({{ url.id }})">修改</a>
+                                        <a class="b_clone-{{ url.id }}" onclick="show_clone({{ url.id }})">克隆</a>
+                                        <a class="b_delete-{{ url.id }}" onclick="delete_url({{ url.id }})">删除</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+    <!--<div class="c_message">-->
+        <!--<div class="m_head">-->
+            <!--<div class="h_title">-->
+                <!--<span class="glyphicon  h_glyphicon"></span>-->
+                <!--模块管理窗口-->
+            <!--</div>-->
+        <!--</div>-->
+
+        <!--<div class="m_info">-->
+            <!---->
+        <!--</div>-->
+    <!--</div>-->
+{% endblock %}
+
+{# jq #}
+{% block javascript %}
+    <script src="{{ url_for('static', filename='efun/js/manager_url.js') }}"></script>
+{% endblock %}

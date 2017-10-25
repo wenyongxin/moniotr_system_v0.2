@@ -1,0 +1,1477 @@
+{% extends "base.html" %}
+
+{% block title %}月报分析{% endblock %}
+
+
+{% block liMarquee%}
+{% endblock %}
+
+
+{#样式#}
+{% block style %}
+
+
+<link rel="stylesheet" href="/static/report/font-awesome/css/font-awesome.min.css"/>
+<link rel="stylesheet" href="/static/report/css/select2.min.css">
+<link rel="stylesheet" href="/static/report/css/style.css" />
+<link rel="stylesheet" href="/static/report/jquery-ui/jquery-ui.css">
+<script src="/static/report/jquery-ui/jquery-ui.js"></script>
+
+<style>
+
+.right{width: 1690px; height: 100%; background: #ddd; position:absolute;top: 0px; right: 0px;overflow-y:scroll}
+.right .r_content{width:98.5%; height: 82%; float:right; position: absolute; margin-top:10px;}
+
+</style>
+
+{% endblock %}
+
+{#正文内容#}
+{% block page_content %}
+
+    <div class="row" >
+
+			<div class="col-xs-12" style="padding-left: 60px;">
+
+
+				<div class="table-header" style="background-color:#357ebd;height: 45px;padding-right: 20px;overflow: hidden;">
+                    <div style="width: 25%;float: left;font-size: 20px;"><span id="repo_month">{{ this_month }}</span><span> 月故障分析</span></div>
+                    <div style="width: 230px;float: right;font-size: 20px;margin-top:7px;">
+
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" id="datepicker-month" size="7" style="line-height:28px;" value="{{ this_month }}">
+                        </div>
+
+                        <div class="col-sm-3">
+                            <span class="btn btn-success" id='export-month' style="float:right;">导出</span>
+                        </div>
+
+                    </div>
+				</div>
+
+				<div class="content" id="month-body">
+
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" style="color: dodgerblue;">
+                                    <h4 > 用户体验数据指标(月度平均可用率基准值暂定为99%)</h4>
+                                </div>
+
+
+                                <div class="panel-body">
+                                    <div class="table-responsive" style="margin-top:-3px;overflow-x:auto; zoom:0.8;" >
+
+                                <table class="table table-striped table-bordered" >
+                                    <thead>
+                                        <tr role="row" style="color: white;text-align: center;">
+                                            <th width="4%" height='60px' bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">故障指标</th>
+                                            <th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">运营中心</th>
+                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">业务类型</th>
+                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">故障时间(分钟)</th>
+                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">月度可用率</th>
+
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id='trouble-tbody'>
+                                        <tr>
+                                            <td rowspan="{{ one_row }}" style="text-align:center;vertical-align:middle;">一级指标</td>
+                                            <td rowspan="{{ AE_row }}" style="text-align:center;vertical-align:middle;">亚欧</td>
+                                            <td style="text-align:center;vertical-align:middle;">登录</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_AE_login }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_AE_login/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">储值</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_AE_store }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_AE_store/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">注册</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_AE_register }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_AE_register/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_AE_game }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_AE_game/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% if trouble_time_AE_all >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_AE_all }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_AE_all/month_time)*100) | round(2,'floor')  }}%</td>
+                                            </tr>
+                                        {% endif %}
+
+                                        <tr>
+                                            <td rowspan="{{ HT_row}}"  style="text-align:center;vertical-align:middle;">港台</td>
+                                            <td style="text-align:center;vertical-align:middle;">登录</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_HT_login }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_HT_login/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                       <tr>
+                                            <td style="text-align:center;vertical-align:middle;">储值</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_HT_store }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_HT_store/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">注册</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_HT_register }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_HT_register/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_HT_game }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_HT_game/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% if trouble_time_HT_all >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_HT_all }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_HT_all/month_time)*100) | round(2,'floor')  }}%</td>
+                                            </tr>
+                                        {% endif %}
+
+                                        <tr>
+                                            <td rowspan="{{ KR_row}}"  style="text-align:center;vertical-align:middle;">韩国</td>
+                                            <td style="text-align:center;vertical-align:middle;">登录</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_KR_login }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_KR_login/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">储值</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_KR_store }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_KR_store/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">注册</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_KR_register }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_KR_register/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_KR_game }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_KR_game/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% if trouble_time_KR_all >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_KR_all }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_KR_all/month_time)*100) | round(2,'floor')  }}%</td>
+                                            </tr>
+                                        {% endif %}
+
+                                        <tr>
+                                            <td rowspan="{{ CN_row }}"  style="text-align:center;vertical-align:middle;">国内</td>
+                                            <td style="text-align:center;vertical-align:middle;">登录</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_CN_login }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_CN_login/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">储值</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_CN_store }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_CN_store/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">注册</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_CN_register }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_CN_register/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_CN_game }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_CN_game/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% if trouble_time_CN_all >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_CN_all }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_CN_all/month_time)*100) | round(2,'floor')  }}%</td>
+                                            </tr>
+                                        {% endif %}
+
+
+                                        <tr>
+                                            <td rowspan="{{ GB_row }}"  style="text-align:center;vertical-align:middle;">全球</td>
+                                            <td style="text-align:center;vertical-align:middle;">登录</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_GB_login }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_GB_login/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">储值</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_GB_store }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_GB_store/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">注册</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_GB_register }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_GB_register/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_GB_game }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_GB_game/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% if trouble_time_GB_all >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_GB_all }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_GB_all/month_time)*100) | round(2,'floor')  }}%</td>
+                                            </tr>
+                                        {% endif %}
+
+
+                                        {% if ALL_row > 0 %}
+                                            <tr>
+                                                <td rowspan="{{ ALL_row +1 }}"  style="text-align:center;vertical-align:middle;">所有地区</td>
+                                            </tr>
+                                            {% if trouble_time_ALL_login >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">登录</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ALL_login }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_ALL_login/month_time)*100) | round(2,'floor')  }}%</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if trouble_time_ALL_store >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">储值</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ALL_store }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_ALL_store/month_time)*100) | round(2,'floor')  }}%</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if trouble_time_ALL_register >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">注册</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ALL_register }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_ALL_register/month_time)*100) | round(2,'floor')  }}%</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if trouble_time_ALL_game >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ALL_game }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_ALL_game/month_time)*100) | round(2,'floor')  }}%</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if trouble_time_ALL_all >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ALL_all }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_ALL_all/month_time)*100) | round(2,'floor')  }}%</td>
+                                            </tr>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        <tr>
+                                            <td colspan="2" style="text-align:center;vertical-align:middle;">合计(一级指标)</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_is_core }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_is_core/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+
+
+
+
+                                        <tr>
+
+                                            {% if list_AE  and list_AE.0.1 >0 %}
+                                                <td rowspan="{{ 1 + rowspan_AE_1  + rowspan_HT_1 + rowspan_KR_1 + rowspan_CN_1 + rowspan_GB_1 }}" style="text-align:center;vertical-align:middle;">二级指标</td>
+                                                <td rowspan="{{ rowspan_AE_1 }}" style="text-align:center;vertical-align:middle;">亚欧</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ list_AE.0.0 }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ list_AE.0.1 }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ ((1-list_AE.0.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                            {% else %}
+                                            <td rowspan="{{ 2 + rowspan_AE_1 + rowspan_HT_1 + rowspan_KR_1 + rowspan_CN_1 + rowspan_GB_1 }}" style="text-align:center;vertical-align:middle;">二级指标</td>
+                                            {% endif %}
+                                        </tr>
+                                        {% if list_AE.1 and list_AE.1.1>0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.1.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.1.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_AE.1.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_AE.2 and  list_AE.2.1>0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.2.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.2.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_AE.2.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_AE.3 and  list_AE.3.1>0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.3.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.3.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_AE.3.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+
+
+                                        {% if list_HT  and list_HT.0.1 >0 %}
+                                        <tr>
+                                            <td rowspan="{{ rowspan_HT_1  }}" style="text-align:center;vertical-align:middle;">港台</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.0.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.0.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_HT.0.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_HT.1 and list_HT.1.1 > 0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.1.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.1.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_HT.1.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_HT.2  and list_HT.2.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.2.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.2.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_HT.2.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_HT.3 and list_HT.3.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.3.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.3.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_HT.3.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+
+
+
+                                        {% if list_KR  and list_KR.0.1 > 0 %}
+                                        <tr>
+                                            <td rowspan="{{ rowspan_KR_1 }}" style="text-align:center;vertical-align:middle;">韩国</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.0.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.0.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_KR.0.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_KR.1 and list_KR.1.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.1.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.1.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_KR.1.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_KR.2  and list_KR.2.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.2.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.2.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_KR.2.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_KR.3 and list_KR.3.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.3.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.3.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_KR.3.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+
+                                        {% if list_CN and list_CN.0.1 >0 %}
+                                        <tr>
+                                            <td rowspan="{{ rowspan_CN_1 }}" style="text-align:center;vertical-align:middle;">国内</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.0.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.0.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_CN.0.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_CN.1 and list_CN.1.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.1.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.1.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_CN.1.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_CN.2 and list_CN.2.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.2.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.2.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_CN.2.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_CN.3 and list_CN.3.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.3.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.3.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_CN.3.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+
+
+                                        {% if list_GB  and list_GB.0.1 >0 %}
+                                        <tr>
+                                            <td rowspan="{{ rowspan_GB_1 }}" style="text-align:center;vertical-align:middle;">全球</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.0.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.0.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_GB.0.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_GB.1 and  list_GB.1.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.1.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.1.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_GB.1.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_GB.2  and list_GB.2.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.2.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.2.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_GB.2.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_GB.3  and list_GB.3.1 >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.3.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.3.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-list_GB.3.1/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+                                        {% endif %}
+
+                                        <tr>
+                                            <td  colspan="2" style="text-align:center;vertical-align:middle;">合计</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_not_core }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-trouble_time_not_core/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="3" style="text-align:center;vertical-align:middle;">总合计</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{trouble_time_not_core+trouble_time_is_core }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ ((1-(trouble_time_not_core+trouble_time_is_core)/month_time)*100) | round(2,'floor')  }}%</td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" style="color: dodgerblue;">
+                                    <h4>各项用户体验数据指标对比</h4>
+                                </div>
+
+
+                                <div class="panel-body">
+
+                                    <div class="table-responsive" style="margin-top:-3px;overflow-x:auto; zoom:0.8;" >
+
+                                        <table class="table table-striped table-bordered" >
+                                    <thead>
+                                        <tr role="row" style="color: white;text-align: center;">
+                                            <th width="4%" height='60px' bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">业务指标</th>
+                                            <th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">运营中心</th>
+                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">业务类型</th>
+                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">本月故障时间(分钟)</th>
+                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">上月故障时间(分钟)</th>
+
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id='trouble-tbody'>
+                                        <tr>
+                                            <td rowspan="{{ one_row_pk }}" style="text-align:center;vertical-align:middle;">核心业务</td>
+                                            {% if trouble_time_AE_all >0 or last_month.trouble_time_AE_all_core >0 %}
+                                            <td rowspan="5"  style="text-align:center;vertical-align:middle;">亚欧</td>
+                                            {% else %}
+                                            <td rowspan="4"  style="text-align:center;vertical-align:middle;">亚欧</td>
+                                            {% endif %}
+
+                                            <td style="text-align:center;vertical-align:middle;">登录</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_AE_login }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_AE_login_core }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">储值</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_AE_store }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_AE_store_core }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">注册</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_AE_register }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_AE_register_core  }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_AE_game }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_AE_game_core  }}</td>
+                                        </tr>
+
+                                        {% if trouble_time_AE_all >0 or last_month.trouble_time_AE_all_core >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_AE_all }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_AE_all_core  }}</td>
+                                        </tr>
+                                        {% endif %}
+
+                                        <tr>
+                                            {% if trouble_time_HT_all >0 or last_month.trouble_time_HT_all_core >0 %}
+                                            <td rowspan="5"  style="text-align:center;vertical-align:middle;">港台</td>
+                                            {% else %}
+                                            <td rowspan="4"  style="text-align:center;vertical-align:middle;">港台</td>
+                                            {% endif %}
+
+                                            <td style="text-align:center;vertical-align:middle;">登录</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_HT_login }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_HT_login_core }}</td>
+                                        </tr>
+                                       <tr>
+                                            <td style="text-align:center;vertical-align:middle;">储值</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_HT_store }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_HT_store_core }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">注册</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_HT_register }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_HT_register_core }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_HT_game }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_HT_game_core }}</td>
+                                        </tr>
+                                        {% if trouble_time_HT_all >0 or last_month.trouble_time_HT_all_core >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_HT_all }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_HT_all_core  }}</td>
+                                        </tr>
+                                        {% endif %}
+
+                                        <tr>
+                                            {% if trouble_time_KR_all >0 or last_month.trouble_time_KR_all_core >0 %}
+                                            <td rowspan="5"  style="text-align:center;vertical-align:middle;">韩国</td>
+                                            {% else %}
+                                            <td rowspan="4"  style="text-align:center;vertical-align:middle;">韩国</td>
+                                            {% endif %}
+                                            <td style="text-align:center;vertical-align:middle;">登录</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_KR_login }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_KR_login_core }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">储值</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_KR_store }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_KR_store_core }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">注册</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_KR_register }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_KR_register_core }}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_KR_game }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_KR_game_core }}</td>
+                                        </tr>
+
+                                        {% if trouble_time_KR_all >0 or last_month.trouble_time_KR_all_core >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_KR_all }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_KR_all_core  }}</td>
+                                        </tr>
+                                        {% endif %}
+
+                                        <tr>
+                                            {% if trouble_time_CN_all >0 or last_month.trouble_time_CN_all_core >0 %}
+                                            <td rowspan="5"  style="text-align:center;vertical-align:middle;">国内</td>
+                                            {% else %}
+                                            <td rowspan="4"  style="text-align:center;vertical-align:middle;">国内</td>
+                                            {% endif %}
+                                            <td style="text-align:center;vertical-align:middle;">登录</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_CN_login }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_CN_login_core }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">储值</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_CN_store }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_CN_store_core }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">注册</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_CN_register }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_CN_register_core  }}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_CN_game }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_CN_game_core  }}</td>
+                                        </tr>
+
+                                        {% if trouble_time_CN_all >0 or last_month.trouble_time_CN_all_core >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_CN_all }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_CN_all_core  }}</td>
+                                        </tr>
+                                        {% endif %}
+
+
+                                        <tr>
+                                            {% if trouble_time_GB_all >0 or last_month.trouble_time_GB_all_core >0 %}
+                                            <td rowspan="5"  style="text-align:center;vertical-align:middle;">全球</td>
+                                            {% else %}
+                                            <td rowspan="4"  style="text-align:center;vertical-align:middle;">全球</td>
+                                            {% endif %}
+                                            <td style="text-align:center;vertical-align:middle;">登录</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_GB_login }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_GB_login_core }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">储值</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_GB_store }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_GB_store_core }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">注册</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_GB_register }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_GB_register_core }}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_GB_game }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_GB_game_core }}</td>
+                                        </tr>
+                                        {% if trouble_time_GB_all >0 or last_month.trouble_time_GB_all_core >0 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_GB_all }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_BG_all_core  }}</td>
+                                        </tr>
+                                        {% endif %}
+
+
+                                        {% if ALL_row_pk > 0 %}
+                                            <tr>
+                                                <td rowspan="{{ ALL_row_pk +1 }}"  style="text-align:center;vertical-align:middle;">所有地区</td>
+                                            </tr>
+                                            {% if trouble_time_ALL_login >0 or last_month.trouble_time_ALL_login_core >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">登录</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ALL_login }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_ALL_login_core }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if trouble_time_ALL_store >0 or last_month.trouble_time_ALL_store_core >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">储值</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ALL_store }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_ALL_store_core }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if trouble_time_ALL_register >0 or last_month.trouble_time_ALL_register_core >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">注册</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ALL_register }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{  last_month.trouble_time_ALL_register_core }}</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if trouble_time_ALL_game >0 or last_month.trouble_time_ALL_game_core >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">游戏</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ALL_game }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_ALL_game_core  }}%</td>
+                                            </tr>
+                                            {% endif %}
+                                            {% if trouble_time_ALL_all >0 or last_month.trouble_time_ALL_all_core >0 %}
+                                            <tr>
+                                                <td style="text-align:center;vertical-align:middle;">ALL</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ALL_all }}</td>
+                                                <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_ALL_all_core  }}</td>
+                                            </tr>
+                                            {% endif %}
+                                        {% endif %}
+
+
+
+                                        <tr>
+                                            <td colspan="2" style="text-align:center;vertical-align:middle;">合计(核心业务)</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_is_core }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_is_core  }}</td>
+                                        </tr>
+
+
+
+
+                                        <tr>
+                                            {% if list_AE  %}
+                                            <td rowspan="{{ rowspan_AE + 1 + rowspan_HT + rowspan_KR + rowspan_CN + rowspan_GB }}" style="text-align:center;vertical-align:middle;">非核心业务</td>
+                                            <td rowspan="{{ rowspan_AE }}" style="text-align:center;vertical-align:middle;">亚欧</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.0.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.0.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.0.2 }}</td>
+                                            {% else %}
+                                            <td rowspan="{{ rowspan_AE + 2 + rowspan_HT + rowspan_KR + rowspan_CN + rowspan_GB }}" style="text-align:center;vertical-align:middle;">非核心业务</td>
+                                            {% endif %}
+                                        </tr>
+                                        {% if list_AE.1  %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.1.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.1.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.1.2  }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_AE.2 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.2.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.2.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.2.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_AE.3 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.3.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.3.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_AE.3.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+
+
+                                        {% if list_HT %}
+                                        <tr>
+                                            <td rowspan="{{ rowspan_HT }}" style="text-align:center;vertical-align:middle;">港台</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.0.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.0.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.0.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_HT.1 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.1.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.1.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.1.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_HT.2 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.2.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.2.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.2.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_HT.3 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.3.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.3.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_HT.3.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+
+
+
+                                        {% if list_KR %}
+                                        <tr>
+                                            <td rowspan="{{ rowspan_KR }}" style="text-align:center;vertical-align:middle;">韩国</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.0.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.0.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.0.2  }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_KR.1 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.1.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.1.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.1.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_KR.2 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.2.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.2.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.2.2  }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_KR.3 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.3.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.3.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_KR.3.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+
+                                        {% if list_CN %}
+                                        <tr>
+                                            <td rowspan="{{ rowspan_KR }}" style="text-align:center;vertical-align:middle;">国内</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.0.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.0.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.0.2  }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_CN.1 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.1.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.1.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.1.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_CN.2 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.2.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.2.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.2.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_CN.3 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.3.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.3.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_CN.3.2  }}</td>
+                                        </tr>
+                                        {% endif %}
+
+
+                                        {% if list_GB %}
+                                        <tr>
+                                            <td rowspan="{{ rowspan_KR }}" style="text-align:center;vertical-align:middle;">全球</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.0.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.0.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.0.2 }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_GB.1 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.1.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.1.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.1.2  }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_GB.2 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.2.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.2.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.2.2  }}</td>
+                                        </tr>
+                                        {% endif %}
+                                        {% if list_GB.3 %}
+                                        <tr>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.3.0 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.3.1 }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ list_GB.3.2  }}</td>
+                                        </tr>
+                                        {% endif %}
+
+                                        <tr>
+                                            <td  colspan="2" style="text-align:center;vertical-align:middle;">合计(非核心业务)</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ trouble_time_not_core }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month.trouble_time_not_core  }}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td colspan="3" style="text-align:center;vertical-align:middle;">合计(总)</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{trouble_time_not_core+trouble_time_is_core }}</td>
+                                            <td style="text-align:center;vertical-align:middle;">{{ last_month_trouble_time }}</td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" style="color: dodgerblue;">
+                                    <span ><i class="fa fa-bar-chart fa-lg"></i> &nbsp;内外故障统计</span>
+                                </div>
+                                <div class="panel-body">
+
+                                    <div style="width: auto;height:220px;">
+                                        <div class="table-responsive" style="margin-top:-3px;overflow-x:auto; zoom:0.8;" >
+
+                                            <table class="table table-striped table-bordered" >
+                                                <thead>
+                                                    <tr role="row" style="color: white;text-align: center;">
+                                                        <th colspan="2" width="4%" height='60px' bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">故障归属</th>
+                                                        <th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">故障时间(分钟)</th>
+                                                        <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">占比</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody id='trouble-tbody'>
+                                                    <tr>
+                                                        <td rowspan="4" style="text-align:center;vertical-align:middle;">内部故障</td>
+                                                        <td  style="text-align:center;vertical-align:middle;">运维</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_yw_inner }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_yw_inner/trouble_time_all*100) | round(2, 'floor') }}%</td>
+                                                    </tr>
+                                                    <tr>
+
+                                                        <td style="text-align:center;vertical-align:middle;">业务开发</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ywkf_inner }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_ywkf_inner/trouble_time_all*100) | round(2,'floor') }}%</td>
+                                                    </tr>
+                                                    <tr>
+
+                                                        <td style="text-align:center;vertical-align:middle;">基础开发</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_jckf_inner }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_jckf_inner/trouble_time_all*100) | round(2,'floor')}}%</td>
+                                                    </tr>
+                                                    <tr>
+
+                                                        <td style="text-align:center;vertical-align:middle;">运营</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_yy }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_yy/trouble_time_all*100) | round(2,'floor')}}%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align:center;vertical-align:middle;">外部故障</td>
+                                                        <td style="text-align:center;vertical-align:middle;">第三方</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_out }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_out/trouble_time_all*100) | round(2,'floor') }}%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" style="text-align:center;vertical-align:middle;">合计</td>
+                                                        {% if trouble_time_all == 1 %}
+                                                        <td style="text-align:center;vertical-align:middle;">0</td>
+                                                        {% else %}
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_all }}</td>
+                                                        {% endif %}
+                                                        <td style="text-align:center;vertical-align:middle;">100%</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading" style="color: dodgerblue;">
+                                    <span ><i class="fa fa-bar-chart fa-lg"></i> &nbsp;内外故障统计</span>
+                                </div>
+
+
+                                <div class="panel-body">
+
+                                    <div id="trouble-echart-L" style="width: auto;height:220px;"></div>
+
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading" style="color: dodgerblue;">
+                                    <span ><i class="fa fa-bar-chart fa-lg"></i> &nbsp;部门故障统计</span>
+                                </div>
+
+
+                                <div class="panel-body">
+
+                                    <div style="width: auto;height:260px;">
+                                        <div class="table-responsive" style="margin-top:-3px;overflow-x:auto; zoom:0.8;" >
+
+                                            <table class="table table-striped table-bordered" >
+                                                <thead>
+                                                    <tr role="row" style="color: white;text-align: center;">
+                                                        <th  width="4%" height='60px' bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">故障归属</th>
+                                                        <th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">负责人</th>
+                                                        <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">核心服务故障时间(分钟)</th>
+                                                        <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">非核心服务故障时间(分钟)</th>
+                                                        <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">合计</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody id='trouble-tbody'>
+                                                    <tr>
+
+                                                        <td style="text-align:center;vertical-align:middle;">运维</td>
+                                                        <td style="text-align:center;vertical-align:middle;">钱建锋</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_yw_core }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_yw_ncore }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_yw }}</td>
+                                                    </tr>
+                                                    <tr>
+
+                                                        <td style="text-align:center;vertical-align:middle;">业务开发</td>
+                                                        <td style="text-align:center;vertical-align:middle;">肖朋</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ywkf_core }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ywkf_ncore }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ywkf }}</td>
+                                                    </tr>
+                                                    <tr>
+
+                                                        <td style="text-align:center;vertical-align:middle;">基础开发</td>
+                                                        <td style="text-align:center;vertical-align:middle;">黄谦</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_jckf_core }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_jckf_ncore }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_jckf }}</td>
+                                                    </tr>
+                                                    <tr>
+
+                                                        <td style="text-align:center;vertical-align:middle;">运营</td>
+                                                        <td style="text-align:center;vertical-align:middle;">None</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_yy_core }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_yy_ncore }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_yy }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align:center;vertical-align:middle;">第三方</td>
+                                                        <td style="text-align:center;vertical-align:middle;">第三方</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_dsf_core }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_dsf_ncore }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_dsf }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" style="text-align:center;vertical-align:middle;">合计</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_core }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_ncore }}</td>
+                                                        {% if trouble_time_all == 1 %}
+                                                        <td style="text-align:center;vertical-align:middle;">0</td>
+                                                        {% else %}
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_all }}</td>
+                                                        {% endif %}
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+
+                            <div class="panel panel-default">
+                                <div class="panel-heading" style="color: dodgerblue;">
+                                    <span ><i class="fa fa-bar-chart fa-lg"></i> &nbsp;部门故障统计</span>
+                                </div>
+
+
+                                <div class="panel-body">
+
+                                    <div id="trouble-echart-A" style="width: auto;height:260px;"></div>
+
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+
+                        <div class="col-sm-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" style="color: dodgerblue;">
+                                    <span ><i class="fa fa-bar-chart fa-lg"></i> &nbsp;故障类型统计</span>
+                                </div>
+
+
+                                <div class="panel-body">
+                                    <!--
+                                    <div id="trouble-echart-l" style="width: auto;height:300px;"></div>
+
+                                    -->
+                                    <div style="width: auto;height:290px;">
+                                        <div class="table-responsive" style="margin-top:-3px;overflow-x:auto; zoom:0.8;" >
+
+                                            <table class="table table-striped table-bordered" >
+                                                <thead>
+                                                    <tr role="row" style="color: white;text-align: center;">
+                                                        <th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">故障类型</th>
+                                                        <th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">故障时间(分钟)</th>
+                                                        <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">占比</th>
+                                                    </tr>
+                                                </thead>
+
+                                                <tbody id='trouble-tbody'>
+                                                    <tr>
+                                                        <td  style="text-align:center;vertical-align:middle;">服务器类型故障</td>
+                                                        <td  style="text-align:center;vertical-align:middle;">{{ trouble_time_server}}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_server/trouble_time_all*100) | round(2,'floor') }}%</td>
+                                                    </tr>
+                                                    <tr>
+
+                                                        <td style="text-align:center;vertical-align:middle;">人为错误</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_perple}}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_perple/trouble_time_all*100) | round(2,'floor') }}%</td>
+                                                    </tr>
+                                                    <tr>
+
+                                                        <td style="text-align:center;vertical-align:middle;">BUG类型故障</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_bug}}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_bug/trouble_time_all*100) | round(2,'floor') }}%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align:center;vertical-align:middle;">安全类型故障</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_safe }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_safe/trouble_time_all*100) | round(2,'floor') }}%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align:center;vertical-align:middle;">第三方故障</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_dsf_t }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_dsf_t/trouble_time_all*100) | round(2,'floor') }}%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align:center;vertical-align:middle;">偶然性故障</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_once }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_once/trouble_time_all*100) | round(2,'floor') }}%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align:center;vertical-align:middle;">网络故障</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_net }}</td>
+                                                        <td style="text-align:center;vertical-align:middle;">{{ (trouble_time_net/trouble_time_all*100) | round(2,'floor') }}%</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align:center;vertical-align:middle;">合计</td>
+                                                        {% if trouble_time_all == 1 %}
+                                                        <td style="text-align:center;vertical-align:middle;">0</td>
+                                                        {% else %}
+                                                        <td style="text-align:center;vertical-align:middle;">{{ trouble_time_all }}</td>
+                                                        {% endif %}
+                                                        <td style="text-align:center;vertical-align:middle;">100%</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" style="color: dodgerblue;">
+                                    <span ><i class="fa fa-bar-chart fa-lg"></i> &nbsp;故障类型统计</span>
+                                </div>
+
+
+                                <div class="panel-body">
+
+                                    <div id="trouble-echart-l" style="width: auto;height:290px;"></div>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+
+                        <div>
+                            <ul class="nav nav-pills btn-group" style="position: fixed;bottom: 45%;right: 5px;margin-left: 30px">
+                                <button class="btn btn-primary" data-toggle="modal" data-target="#myModal-month">故障事件</button>
+                            </ul>
+                        </div>
+                        <!--本月故障事件列表-->
+                       <div class="modal fade" id="myModal-month" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" style="width:70%;min-width:1400px;margin-top:5%;">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                        <h4 class="modal-title" id="myModalLabel">故障事件列表</h4>
+                                    </div>
+                                    <div class="modal-body">
+
+                                        <div class="table-responsive" style="margin-top:-3px;overflow-x:scroll;overflow-y:hidden;zoom:0.8;min-width: 1400px;max-height:750px;" >
+                                            <div style="width:190%;">
+                                                <table class="table table-striped table-bordered">
+                                                    <thead>
+                                                        <tr role="row" style="color: white;text-align: center;">
+                                                            <th width="4%" height='60px' bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">日期</th>
+                                                            <th width="3%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">运营中心</th>
+                                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">业务模块</th>
+                                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">事件</th>
+                                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">影响范围</th>
+                                                            <th width="5%" bgcolor="#e26b0a" style="text-align:center;vertical-align:middle;">是否内部故障</th>
+                                                            <th width="5%" bgcolor="#e26b0a" style="text-align:center;vertical-align:middle;">影响时长(分钟)</th>
+                                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">是否影响用户体验</th>
+                                                            <th width="5%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">影响用户</th>
+                                                            <th width="5%" bgcolor="#c5d9f1" style="text-align:center;vertical-align:middle;color: black;">直接经济损失</th>
+                                                            <th width="5%" bgcolor="#c5d9f1" style="text-align:center;vertical-align:middle;color: black;">数据来源</th>
+                                                            <th width="5%" bgcolor="#c5d9f1" style="text-align:center;vertical-align:middle;color: black;">是否核心服务</th>
+                                                            <th width="4%" bgcolor="#c5d9f1" style="text-align:center;vertical-align:middle;color: black;">故障类型</th>
+                                                            <th width="4%" bgcolor="#c5d9f1" style="text-align:center;vertical-align:middle;color: black;">处理负责人</th>
+                                                            <th width="4%" bgcolor="#c5d9f1" style="text-align:center;vertical-align:middle;color: black;">归属</th>
+                                                            <th width="3%" bgcolor="#c5d9f1" style="text-align:center;vertical-align:middle;color: black;">状态</th>
+                                                            <th width="6%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">故障原因</th>
+                                                            <th width="10%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">处理过程</th>
+                                                            <th width="6%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">教训总结</th>
+                                                            <th width="6%" bgcolor="#357EBD" style="text-align:center;vertical-align:middle;">改进</th>
+                                                        </tr>
+                                                    </thead>
+                                                </table>
+                                            </div>
+
+                                            <div style="width:190.8%;height:730px;overflow-y:scroll;padding-bottom:100px;margin-top:-20px;">
+                                                <table class="table table-striped table-bordered">
+                                                    <tbody id='trouble-tbody' >
+                                                        {% for trouble in trouble_infos %}
+                                                        <tr>
+                                                            <td  width="4%" style="text-align:center;vertical-align:middle;">{{ trouble.trouble_date }}</td>
+                                                            <td  width="3%" style="text-align:center;vertical-align:middle;">{{ trouble.operating_center }}</td>
+                                                            <td  width="5%" style="text-align:center;vertical-align:middle;">{{ trouble.business_module }}</td>
+                                                            <td  width="5%" style="text-align:center;vertical-align:middle;">{{ trouble.trouble_affair }}</td>
+                                                            <td  width="5%" style="text-align:center;vertical-align:middle;">{{ trouble.affect_scope }}</td>
+                                                            <td  width="5%" style="text-align:center;vertical-align:middle;">{{ trouble.isnot_inner }}</td>
+                                                            <td  width="5%" style="text-align:center;vertical-align:middle;">{{ trouble.affect_time }}</td>
+                                                            <td  width="5%" style="text-align:center;vertical-align:middle;">{{ trouble.isnot_experience }}</td>
+                                                            <td  width="5%" style="text-align:center;vertical-align:middle;">{{ trouble.affect_user }}</td>
+                                                            <td  width="5%" style="text-align:center;vertical-align:middle;">{{ trouble.affect_money }}</td>
+                                                            <td  width="5%" style="text-align:center;vertical-align:middle;">{{ trouble.data_source }}</td>
+                                                            <td  width="5%" style="text-align:center;vertical-align:middle;">{{ trouble.isnot_core }}</td>
+                                                            <td  width="4%" style="text-align:center;vertical-align:middle;">{{ trouble.trouble_type }}</td>
+                                                            <td  width="4%" style="text-align:center;vertical-align:middle;">{{ trouble.heading_user }}</td>
+                                                            <td  width="4%" style="text-align:center;vertical-align:middle;">{{ trouble.trouble_attr }}</td>
+                                                            <td  width="3%" style="text-align:center;vertical-align:middle;">{{ trouble.trouble_status }}</td>
+                                                            <td  width="6%"><pre style="background-color:transparent ;border: 0px solid;white-space: pre-wrap;word-wrap: break-word;">{{ trouble.trouble_cause }}</pre></td>
+                                                            <td  width="10%" ><pre style="background-color:transparent ;border: 0px solid;white-space: pre-wrap;word-wrap: break-word;">{{ trouble.whith_process }}</pre></td>
+                                                            <td  width="6%"><pre style="background-color: transparent;border: 0px solid;white-space: pre-wrap;word-wrap: break-word;">{{ trouble.lesson_course }}</pre></td>
+                                                            <td  width="6%"><pre style="background-color:transparent ;border: 0px solid;white-space: pre-wrap;word-wrap: break-word;">{{ trouble.improve }}</pre></td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+			    </div>
+               <!--右悬浮按钮-->
+
+		</div>
+    </div>
+
+
+
+{% endblock %}
+
+
+{% block javascript %}
+
+<script src="/static/report/js/echarts.min.js"></script>
+<script src="/static/report/js/select2.min.js"></script>
+<script  src="/static/report/js/popover.js"></script>
+
+
+
+<script type="text/javascript">
+
+//创建日历插件/选择月故障分析信息
+$(document).ready(function(){
+    $("#datepicker-month").datepicker({
+        changeMonth: true,
+        changeYear: true,
+        maxDate: "+0D",
+        monthNamesShort: ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'],
+        dateFormat: 'yy-mm',
+        onClose: function(dateText, inst) {
+            var month = $("#ui-datepicker-div .ui-datepicker-month :selected").val();
+            var year = $("#ui-datepicker-div .ui-datepicker-year :selected").val();
+            $(this).datepicker('setDate', new Date(year, month, 1));
+
+            var month = $(this).val();
+            $.post('/monthrepo',{'month':month,},function(date){
+               $("#month-body").text("");
+               $("#month-body").append(date);
+
+               $("#repo_month").text("");
+               $("#repo_month").append(month);
+
+            });
+            }
+    });
+});
+
+
+
+//导出月报信息
+$(document).ready(function(){
+    $("#export-month").click(function(){
+
+        var month = $("#datepicker-month").val();
+
+        $.post('/exportmonth/',{'month':month,},function(data){
+            window.open(data,'_blank');
+
+        });
+
+    });
+
+});
+
+
+
+//内外故障统计图形报表
+$(document).ready(function(){
+    var myChart = echarts.init(document.getElementById('trouble-echart-L'));
+    option = {
+        title: {
+            text: '内外故障信息统计',
+            subtext: '',
+            x: 'center'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'right',
+            data: ['运维', '业务开发','基础开发','第三方']
+        },
+        series: [{
+            name: '内外故障同比',
+            type: 'pie',
+            radius: '55%',
+            center: ['50%', '60%'],
+            data: [ {value: {{ trouble_time_yw }},name: '运维'},
+                    {value: {{ trouble_time_ywkf }},name: '业务开发'},
+                    {value: {{ trouble_time_jckf }},name: '基础开发'},
+                    {value: {{ trouble_time_yy }},name: '运营'},
+                    {value: {{ trouble_time_dsf }},name: '第三方'
+            },],
+            itemStyle: {
+                emphasis: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 7, 0, 0.9)'
+                }
+            }
+        }]
+    };
+
+    myChart.setOption(option);
+
+});
+
+
+
+//各类型故障统计图形报表
+$(document).ready(function(){
+    var myChart = echarts.init(document.getElementById('trouble-echart-l'));
+    option = {
+        title: {
+            text: '各类型故障信息统计',
+            subtext: '',
+            x: 'center'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'right',
+            data: ['服务器故障', '人为故障','BUG类型故障','安全类型故障','第三方故障', '偶然性故障','网络故障']
+        },
+        series: [{
+            name: '故障信息',
+            type: 'pie',
+            radius: '55%',
+            center: ['50%', '60%'],
+            data: [{value: {{ trouble_time_server }},name:'服务器故障'},
+                   {value: {{ trouble_time_perple }},name:'人为故障'},
+                   {value: {{ trouble_time_bug }},name:'BUG类型故障'},
+                   {value: {{ trouble_time_safe }},name:'安全类型故障'},
+                   {value: {{ trouble_time_dsf_t }},name:'第三方故障'},
+                   {value: {{ trouble_time_once }},name:'偶然性故障'},
+                   {value: {{ trouble_time_net }},name:'网络故障'},
+                   ],
+            itemStyle: {emphasis: {shadowBlur: 10,shadowOffsetX: 0,shadowColor: 'rgba(0, 0, 0, 0.5)'}}
+        }]
+    };
+
+    myChart.setOption(option);
+
+});
+
+//各部门故障统计图形报表
+$(document).ready(function(){
+    var myChart = echarts.init(document.getElementById('trouble-echart-A'));
+    option = {
+        title: {
+            text: '各部门故障信息统计',
+            subtext: '',
+            x: 'center'
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: "{a} <br/>{b} : {c} ({d}%)"
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'right',
+            data: ['钱建锋', '肖朋', '黄谦','运营', '第三方']
+        },
+        series: [{
+            name: '故障信息',
+            type: 'pie',
+            radius: '55%',
+            center: ['50%', '60%'],
+            data: [{
+                value: {{ trouble_time_yw }},
+                name: '钱建锋'
+            }, {
+                value: {{ trouble_time_ywkf }},
+                name: '肖朋'
+            }, {
+                value: {{ trouble_time_jckf }},
+                name: '黄谦'
+            }, {
+                value: {{ trouble_time_yy }},
+                name: '运营'
+            }, {
+                value: {{ trouble_time_dsf }},
+                name: '第三方'
+            }, ],
+            itemStyle: {
+                emphasis: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
+    };
+
+    myChart.setOption(option);
+
+});
+
+
+
+</script>
+
+{% endblock %}
