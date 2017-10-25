@@ -18,3 +18,26 @@ URL目录管理
 监控管理：
 
 监控安装
+
+
+
+本系统所使用到的技术工具说明：
+flask
+falsk-login
+flask-sqlalchemy
+falsk-migrate
+flask-script
+
+jinjia2
+jinjia2自带过滤器以及自定义过滤器
+
+数据库：
+mysql
+memcache
+redis
+
+异步工具
+celery
+
+
+
